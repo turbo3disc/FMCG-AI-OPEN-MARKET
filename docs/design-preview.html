@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMCG Open Market — Design System Preview (v0.1)</title>
+<style>
+  :root{
+    --primary:#0E7A3D; --primary-dark:#0A5C2E; --primary-soft:#E5F4EB;
+    --accent:#F5A623; --accent-soft:#FDF3E1;
+    --success:#16A34A; --warning:#D97706; --danger:#DC2626;
+    --ink:#14231A; --muted:#66796F; --line:#E2E8E3; --bg:#F6F8F6; --card:#FFFFFF;
+    --radius:12px; --radius-sm:8px;
+    --shadow:0 1px 3px rgba(20,35,26,.08),0 4px 12px rgba(20,35,26,.06);
+    --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.5}
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 80px}
+  header.hero{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;border-radius:16px;padding:36px 32px;margin-bottom:32px}
+  header.hero h1{font-size:28px;margin-bottom:6px}
+  header.hero p{opacity:.9;max-width:640px}
+  header.hero .meta{margin-top:14px;font-size:13px;opacity:.8}
+  h2.section{font-size:20px;margin:40px 0 6px}
+  p.sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+  .card h3{font-size:15px;margin-bottom:10px}
+  .swatch{height:56px;border-radius:var(--radius-sm);margin-bottom:8px;display:flex;align-items:flex-end;padding:8px;font-size:12px;font-weight:600}
+  .token-name{font-size:13px;font-weight:600}
+  .token-val{font-size:12px;color:var(--muted);font-family:ui-monospace,monospace}
+  .btn{display:inline-block;border:none;cursor:pointer;font-weight:600;border-radius:var(--radius-sm);padding:10px 18px;font-size:14px;font-family:var(--font)}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-accent{background:var(--accent);color:#3A2A00}
+  .btn-outline{background:#fff;border:1.5px solid var(--primary);color:var(--primary)}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px}
+  .b-green{background:var(--primary-soft);color:var(--primary-dark)}
+  .b-amber{background:var(--accent-soft);color:#8A5A00}
+  .b-red{background:#FDECEC;color:var(--danger)}
+  .b-grey{background:#EEF2EE;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .product{display:flex;gap:14px}
+  .product .img{width:76px;height:76px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#DFF0E4,#F3E9CF);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
+  .product .name{font-weight:700;font-size:15px}
+  .product .meta{font-size:12px;color:var(--muted)}
+  .price{font-size:18px;font-weight:800;margin-top:4px}
+  .price small{font-size:12px;font-weight:500;color:var(--muted)}
+  .breaks{font-size:12px;color:var(--primary-dark);background:var(--primary-soft);border-radius:6px;padding:6px 8px;margin-top:6px}
+  .seller{display:flex;align-items:center;gap:12px}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+  .stars{color:var(--accent);font-size:13px;letter-spacing:1px}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+  th{background:var(--primary-dark);color:#fff;font-size:13px}
+  tr:last-child td{border-bottom:none}
+  .tracker{display:flex;align-items:center;margin:8px 0}
+  .step{flex:1;text-align:center;position:relative;font-size:12px;color:var(--muted)}
+  .step::before{content:"";display:block;width:26px;height:26px;margin:0 auto 6px;border-radius:50%;background:#DDE5DE}
+  .step.done{color:var(--primary-dark);font-weight:700}
+  .step.done::before{background:var(--primary);content:"✓";color:#fff;font-size:14px;line-height:26px}
+  .step.now{color:var(--ink);font-weight:700}
+  .step.now::before{background:var(--accent);content:"●";color:#fff;font-size:12px;line-height:26px}
+  .step:not(:last-child)::after{content:"";position:absolute;top:13px;left:calc(50% + 16px);right:calc(-50% + 16px);height:2px;background:var(--line)}
+  .step.done:not(:last-child)::after{background:var(--primary)}
+  .otp{display:flex;gap:8px}
+  .otp div{width:46px;height:54px;border:2px solid var(--line);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;background:#fff}
+  .otp div.fill{border-color:var(--primary)}
+  .quote-ver{border-left:3px solid var(--line);padding:8px 12px;margin:8px 0;font-size:13px}
+  .quote-ver.accepted{border-color:var(--primary);background:var(--primary-soft);border-radius:0 8px 8px 0}
+  .quote-ver .who{font-weight:700}
+  input,select{font-family:var(--font);font-size:14px;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--radius-sm);width:100%;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:none;border-color:var(--primary)}
+  .phone{max-width:340px;margin:0 auto;border:10px solid #14231A;border-radius:32px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+  .phone .notch{background:#14231A;color:#fff;text-align:center;font-size:11px;padding:6px}
+  .phone .screen{padding:14px}
+  .nav{display:flex;justify-content:space-around;border-top:1px solid var(--line);padding:10px 0 4px;font-size:11px;color:var(--muted)}
+  .nav b{color:var(--primary)}
+  footer{margin-top:48px;font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>FMCG Open Market — Design System v0.1</h1>
+    <p>One token set + one component library for B2C instant shopping and B2B bulk procurement. Lagos pilot look-and-feel: green = fresh/verified, amber = price/action.</p>
+    <div class="meta">Tokens → Components → B2C screen → B2B screen &nbsp;•&nbsp; Money in kobo, displayed in ₦ &nbsp;•&nbsp; Brand name TBD</div>
+  </header>
+
+  <h2 class="section">1. Design tokens</h2>
+  <p class="sub">Colors, type and spacing every screen is built from. Frontend: Tailwind maps to these same values.</p>
+  <div class="grid g4">
+    <div class="card"><div class="swatch" style="background:#0E7A3D;color:#fff">Primary</div><div class="token-name">--primary</div><div class="token-val">#0E7A3D</div></div>
+    <div class="card"><div class="swatch" style="background:#0A5C2E;color:#fff">Primary dark</div><div class="token-name">--primary-dark</div><div class="token-val">#0A5C2E</div></div>
+    <div class="card"><div class="swatch" style="background:#F5A623;color:#3A2A00">Accent</div><div class="token-name">--accent</div><div class="token-val">#F5A623</div></div>
+    <div class="card"><div class="swatch" style="background:#F6F8F6;border:1px solid var(--line)">Background</div><div class="token-name">--bg</div><div class="token-val">#F6F8F6</div></div>
+    <div class="card"><div class="swatch" style="background:#16A34A;color:#fff">OK</div><div class="token-name">--success</div><div class="token-val">#16A34A</div></div>
+    <div class="card"><div class="swatch" style="background:#D97706;color:#fff">Warn</div><div class="token-name">--warning</div><div class="token-val">#D97706</div></div>
+    <div class="card"><div class="swatch" style="background:#DC2626;color:#fff">Danger</div><div class="token-name">--danger</div><div class="token-val">#DC2626</div></div>
+    <div class="card" style="font-size:13px"><b>Type:</b> Display 28 • Section 20 • Card 15 • Body 14 • Caption 12<br><b>Radius:</b> 12 / 8 &nbsp; <b>Money:</b> ₦12,500 / carton</div>
+  </div>
+
+  <h2 class="section">2. Buttons, badges &amp; inputs</h2>
+  <p class="sub">Every action in the marketplace uses one of these four buttons; every status uses a badge.</p>
+  <div class="grid g2">
+    <div class="card"><h3>Buttons</h3><div class="btn-row">
+      <button class="btn btn-primary">Add to cart</button>
+      <button class="btn btn-accent">Request quote</button>
+      <button class="btn btn-outline">Chat seller</button>
+      <button class="btn btn-danger">Report</button>
+    </div></div>
+    <div class="card"><h3>Status badges + stock freshness</h3><div class="btn-row">
+      <span class="badge b-green"><span class="dot"></span>In stock • updated 5 min ago</span>
+      <span class="badge b-amber"><span class="dot"></span>Low stock • 3 cartons</span>
+      <span class="badge b-red"><span class="dot"></span>Out of stock</span>
+      <span class="badge b-green">Tier 2 • Verified</span>
+      <span class="badge b-grey">Tier 1 • Basic</span>
+      <span class="badge b-amber">COD eligible</span>
+    </div></div>
+    <div class="card"><h3>Search + filters</h3>
+      <input value="Indomie carton near me" aria-label="Search">
+      <div style="height:10px"></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+        <select><option>Within 5 km</option><option>Within 3 km</option><option>City-wide (B2B)</option></select>
+        <select><option>Bulk (carton)</option><option>Retail (piece)</option></select>
+      </div>
+    </div>
+    <div class="card"><h3>Delivery OTP (rider ↔ buyer)</h3>
+      <div class="otp"><div class="fill">4</div><div class="fill">8</div><div class="fill">1</div><div>·</div><div>·</div><div>·</div></div>
+      <p class="sub" style="margin:8px 0 0">Buyer reads the code, rider enters it → proof of delivery.</p>
+    </div>
+  </div>
+
+  <h2 class="section">3. Product + seller cards (B2C &amp; B2B pricing)</h2>
+  <p class="sub">Same card everywhere; B2B offers show MOQ + bulk price breaks, B2C shows the retail unit.</p>
+  <div class="grid g2">
+    <div class="card"><div class="product">
+      <div class="img">🍜</div>
+      <div><div class="name">Indomie Instant Noodles — Carton (40×70g)</div>
+      <div class="meta">Canonical product • 3 nearby sellers</div>
+      <div class="price">₦12,500 <small>/ carton</small></div>
+      <div class="breaks">Bulk: 1–9 cartons ₦12,500 • 10+ cartons ₦11,900 • MOQ 2</div>
+      <div style="margin-top:8px"><span class="badge b-green"><span class="dot"></span>In stock • 40 cartons • 1.5 km</span></div>
+    </div></div>
+    <div class="card"><div class="seller">
+      <div class="avatar">AD</div>
+      <div><div class="name">Adeola Wholesale — Mile 12</div>
+      <div class="stars">★★★★☆ 4.6 (212)</div>
+      <div style="margin-top:6px"><span class="badge b-green">Tier 2 • Verified</span> <span class="badge b-grey">1.5 km</span> <span class="badge b-amber">COD eligible</span></div>
+    </div></div>
+  </div>
+
+  <h2 class="section">4. Nearby sellers table (location-aware discovery)</h2>
+  <p class="sub">PRD §11: “Who has what I need, how much do they have, and how close are they?”</p>
+  <table>
+    <tr><th>Seller</th><th>Distance</th><th>Stock</th><th>Price</th><th>Trust</th></tr>
+    <tr><td><b>Adeola Wholesale</b> • Mile 12</td><td>1.5 km</td><td><span class="badge b-green">40 cartons</span></td><td><b>₦12,500</b></td><td>★★★★☆ Tier 2</td></tr>
+    <tr><td><b>Balogun Distributors</b> • Oshodi</td><td>3.2 km</td><td><span class="badge b-amber">18 cartons</span></td><td><b>₦12,350</b></td><td>★★★★★ Tier 2</td></tr>
+    <tr><td><b>Chidi RetailHub</b> • Yaba</td><td>4.8 km</td><td><span class="badge b-green">75 cartons</span></td><td><b>₦12,700</b></td><td>★★★☆☆ Tier 1</td></tr>
+  </table>
+
+  <h2 class="section">5. B2C phone screen — search → cart → checkout</h2>
+  <p class="sub">Instant order path, single-seller cart, protection terms visible before pay.</p>
+  <div class="grid g2">
+    <div class="phone"><div class="notch">9:41 • FMCG Open Market</div><div class="screen">
+      <input value="🍜 Indomie carton" aria-label="Search">
+      <div style="height:10px"></div>
+      <div class="product"><div class="img">🍜</div><div><div class="name" style="font-size:14px">Indomie Carton (40×70g)</div><div class="meta">Adeola Wholesale • 1.5 km</div><div class="price" style="font-size:16px">₦12,500</div></div></div>
+      <div style="height:10px"></div>
+      <div class="btn-row"><button class="btn btn-primary" style="flex:1">Add to cart</button><button class="btn btn-outline">Chat</button></div>
+      <div style="height:10px"></div>
+      <div class="card" style="box-shadow:none"><h3>Checkout</h3>
+        <div style="font-size:13px">2 cartons × ₦12,500 = <b>₦25,000</b><br>Delivery (Mile 12 zone) = <b>₦800</b><br><b>Total ₦25,800</b> • Protected payment</div>
+        <div style="height:8px"></div>
+        <button class="btn btn-primary" style="width:100%">Pay ₦25,800 securely</button>
+      </div>
+      <div class="nav"><span><b>Home</b></span><span>Search</span><span>Cart</span><span>Orders</span></div>
+    </div></div>
+    <div class="card"><h3>Order tracker (lifecycle ≠ payment state)</h3>
+      <div class="tracker">
+        <div class="step done">Confirmed</div><div class="step done">Preparing</div><div class="step now">Out for delivery</div><div class="step">Delivered</div><div class="step">Completed</div>
+      </div>
+      <p class="sub">Payment: <b>PROTECTED</b> (webhook-confirmed) → settles after delivery confirm. Dispute pauses settlement.</p>
+      <h3 style="margin-top:14px">B2B quote thread (versioned)</h3>
+      <div class="quote-ver"><span class="who">Shop v1:</span> 20 cartons @ ₦12,000, deliver Fri AM</div>
+      <div class="quote-ver"><span class="who">Seller v1:</span> 20 cartons @ ₦12,300, deliver Fri PM, expires 24h</div>
+      <div class="quote-ver accepted"><span class="who">Agreed v2:</span> 20 cartons @ ₦12,200, Fri PM • PO-0417 → converted to order</div>
+    </div>
+  </div>
+
+  <footer>FMCG Open Market • Design System v0.1 preview • Tokens + components map to Phase 0 of <b>docs/IMPLEMENTATION_PLAN.md</b></footer>
+
+</div>
+</body>
+</html>
