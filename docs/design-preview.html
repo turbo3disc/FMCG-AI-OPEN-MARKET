@@ -6,10 +6,11 @@
 <title>FMCG Open Market — Design System Preview (v0.1)</title>
 <style>
   :root{
-    --primary:#0E7A3D; --primary-dark:#0A5C2E; --primary-soft:#E5F4EB;
-    --accent:#F5A623; --accent-soft:#FDF3E1;
-    --success:#16A34A; --warning:#D97706; --danger:#DC2626;
-    --ink:#14231A; --muted:#66796F; --line:#E2E8E3; --bg:#F6F8F6; --card:#FFFFFF;
+    --primary:#00A651; --primary-dark:#00703A; --primary-soft:#DCF5E5;
+    --accent:#FFB800; --accent-soft:#FFF3D1;
+    --sky:#00A8E8; --sky-soft:#DFF4FD; --coral:#FF6B4A;
+    --success:#16A34A; --warning:#D97706; --danger:#E5484D;
+    --ink:#1C2B23; --muted:#68796F; --line:#E6EDE6; --bg:#FFFDF6; --card:#FFFFFF;
     --radius:12px; --radius-sm:8px;
     --shadow:0 1px 3px rgba(20,35,26,.08),0 4px 12px rgba(20,35,26,.06);
     --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -17,7 +18,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.5}
   .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 80px}
-  header.hero{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;border-radius:16px;padding:36px 32px;margin-bottom:32px}
+  header.hero{background:linear-gradient(120deg,#00703A 0%,#00A651 55%,#00A8E8 130%);color:#fff;border-radius:16px;padding:36px 32px;margin-bottom:32px}
   header.hero h1{font-size:28px;margin-bottom:6px}
   header.hero p{opacity:.9;max-width:640px}
   header.hero .meta{margin-top:14px;font-size:13px;opacity:.8}
@@ -95,10 +96,12 @@
   <h2 class="section">1. Design tokens</h2>
   <p class="sub">Colors, type and spacing every screen is built from. Frontend: Tailwind maps to these same values.</p>
   <div class="grid g4">
-    <div class="card"><div class="swatch" style="background:#0E7A3D;color:#fff">Primary</div><div class="token-name">--primary</div><div class="token-val">#0E7A3D</div></div>
-    <div class="card"><div class="swatch" style="background:#0A5C2E;color:#fff">Primary dark</div><div class="token-name">--primary-dark</div><div class="token-val">#0A5C2E</div></div>
-    <div class="card"><div class="swatch" style="background:#F5A623;color:#3A2A00">Accent</div><div class="token-name">--accent</div><div class="token-val">#F5A623</div></div>
-    <div class="card"><div class="swatch" style="background:#F6F8F6;border:1px solid var(--line)">Background</div><div class="token-name">--bg</div><div class="token-val">#F6F8F6</div></div>
+    <div class="card"><div class="swatch" style="background:#00A651;color:#fff">Primary • fresh green</div><div class="token-name">--primary</div><div class="token-val">#00A651</div></div>
+    <div class="card"><div class="swatch" style="background:#00703A;color:#fff">Primary dark</div><div class="token-name">--primary-dark</div><div class="token-val">#00703A</div></div>
+    <div class="card"><div class="swatch" style="background:#FFB800;color:#3A2A00">Accent • sunny amber</div><div class="token-name">--accent</div><div class="token-val">#FFB800</div></div>
+    <div class="card"><div class="swatch" style="background:#00A8E8;color:#fff">Sky • info/links</div><div class="token-name">--sky</div><div class="token-val">#00A8E8</div></div>
+    <div class="card"><div class="swatch" style="background:#FF6B4A;color:#fff">Coral • highlights</div><div class="token-name">--coral</div><div class="token-val">#FF6B4A</div></div>
+    <div class="card"><div class="swatch" style="background:#FFFDF6;border:1px solid var(--line)">Background • warm paper</div><div class="token-name">--bg</div><div class="token-val">#FFFDF6</div></div>
     <div class="card"><div class="swatch" style="background:#16A34A;color:#fff">OK</div><div class="token-name">--success</div><div class="token-val">#16A34A</div></div>
     <div class="card"><div class="swatch" style="background:#D97706;color:#fff">Warn</div><div class="token-name">--warning</div><div class="token-val">#D97706</div></div>
     <div class="card"><div class="swatch" style="background:#DC2626;color:#fff">Danger</div><div class="token-name">--danger</div><div class="token-val">#DC2626</div></div>

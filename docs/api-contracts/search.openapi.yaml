@@ -1,0 +1,18 @@
+openapi: 3.0.3
+info:
+  title: FMCG Search API
+  version: 0.1.0
+paths:
+  /search:
+    get:
+      summary: Location-aware offer search (SRCH-01..06)
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: lat, in: query, schema: { type: number } }
+        - { name: lng, in: query, schema: { type: number } }
+        - { name: radius_km, in: query, schema: { type: number, default: 5 } }
+        - { name: unit_type, in: query, schema: { type: string, enum: [retail, bulk] } }
+        - { name: min_qty, in: query, schema: { type: integer, default: 1 } }
+      responses:
+        '200':
+          description: offers with price/stock/distance/seller + alternatives

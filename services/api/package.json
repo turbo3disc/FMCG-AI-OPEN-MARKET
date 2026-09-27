@@ -1,0 +1,12 @@
+{
+  "name": "@fmcg/api",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.ts",
+    "test": "node --test src/",
+    "db:migrate": "node src/db/migrate.js up",
+    "db:seed": "node src/db/seed.js"
+  },
+  "dependencies": { "fastify": "^5.0.0" }
+}
