@@ -9,6 +9,64 @@ Planned monorepo (scaffold next): `apps/web`, `apps/mobile`, `services/api`,
 
 ---
 
+## Phase -1 — Workstation setup (free tools only, with commands)
+
+Status: Git installed. Docker + Node auto-install running in background.
+
+```powershell
+# 1) Docker (containers for Postgres/PostGIS + Redis, free for personal/small use)
+winget install --id Docker.DockerDesktop -e --accept-package-agreements --accept-source-agreements --silent
+# Fully-free open-source alternative if Docker Desktop licence ever bites:
+# winget install --id Rancher.RancherDesktop -e --accept-package-agreements --accept-source-agreements --silent
+
+# 2) Node LTS (API + web, free/open-source)
+winget install --id OpenJS.NodeJS.LTS -e --accept-package-agreements --accept-source-agreements --silent
+
+# 3) Verify (close + reopen PowerShell first so PATH refreshes)
+docker --version
+docker compose version
+node --version
+npm --version
+
+# 4) Start the stack (from repo root, once infra/docker exists)
+docker compose -f infra/docker/docker-compose.yml up -d
+docker compose -f infra/docker/docker-compose.yml ps
+```
+
+Windows note: Docker Desktop needs WSL2 enabled (it prompts on first run) + one restart.
+If Docker will not run on your PC, fallback is local installs of PostgreSQL + Redis —
+same code, only the connection strings change.
+
+---
+
+## Cost policy — free or minimal-fee tooling (top-grade, free alternatives first)
+
+Rule: build entirely on free tiers; pay only per-use where money/SMS move.
+
+| Need | Free choice (use this) | Cost | Paid alternative it replaces |
+| ---- | ---- | ---- | ---- |
+| Containers | Docker Desktop (personal/small-biz free) or Rancher Desktop (fully free) | ₦0 | — |
+| Frontend web | Next.js + React + Tailwind (open-source) | ₦0 | — |
+| Mobile | Expo + React Native (free tier covers pilot) | ₦0 | — |
+| Backend | Node + TypeScript + Fastify (open-source) | ₦0 | — |
+| Database + geo | PostgreSQL + PostGIS in Docker (open-source) | ₦0 | Managed Postgres only at scale |
+| Cache/queues | Redis in Docker (open-source) | ₦0 | Managed Redis only at scale |
+| Maps/geocode | OpenStreetMap + Nominatim + Leaflet (free, attribution) | ₦0 | Google Maps (pay per call) |
+| Push | Expo Push + Firebase FCM (free) | ₦0 | OneSignal paid tiers |
+| Email | Resend or Brevo free tier (~100–300/day, enough for pilot) | ₦0 | Paid SMTP |
+| SMS/OTP | Minimise: OTP via WhatsApp/push first; Termii pay-per-SMS only when needed | minimal, per SMS | Bulk SMS contracts |
+| AI | Ollama local models (free) for dev + Groq/Gemini free tiers for pilot; vendor-abstracted so we switch without code changes | ₦0 | OpenAI paid API |
+| Payments | Paystack/Flutterwave sandbox free; live = per-transaction fee only, no setup fee | per transaction | — |
+| Hosting (pilot) | Render free tier or Oracle Cloud free tier; Docker image runs anywhere | ₦0 | Paid VPS only if free tier limits hit |
+| CI | GitHub Actions free tier | ₦0 | — |
+| Editor | VS Code (free) | ₦0 | — |
+
+Never-commit-to-paid rule: PSP, maps, SMS and AI vendors sit behind interfaces
+(`services/api` provider adapters, `packages/ai` vendor abstraction), so a free
+choice today can be swapped for a paid one later with zero business-logic changes.
+
+---
+
 ## Phase 0 — Design system + UX flows (no code yet)
 
 Goal: every screen in PRD §26 Step 7 is wireframed against one token set before building.
@@ -58,6 +116,17 @@ Record each as `docs/adr/NNNN-title.md` (context → decision → consequences):
 - Scaffold: `infra/docker` compose (postgres/postgis, redis, api, web), lint/test/CI,
   `.env.example`, seed script for Lagos demo data.
 
+```powershell
+# Monorepo + toolchain (all free/open-source)
+npm install -g pnpm                              # fast free package manager (or use npm)
+pnpm init                                        # run at repo root after scaffold lands
+npx create-next-app@latest apps/web --typescript --tailwind --app
+npx create-expo-app@latest apps/mobile --template blank-typescript
+pnpm --filter ./services/api init; pnpm --filter ./services/api add fastify zod
+docker compose -f infra/docker/docker-compose.yml up -d     # postgres/postgis + redis
+docker compose -f infra/docker/docker-compose.yml logs -f   # watch first boot
+```
+
 ## Phase 2 — Data model + migrations (`infra/db/migrations`)
 
 Per PRD §14 (+ v0.3 additions). Order: users/profiles → canonical products →
@@ -79,6 +148,13 @@ Key tables/constraints:
 - Gate: migrations up/down clean; seed creates 3 zones, 5 sellers, 20 canonical
   products, 40 offers.
 
+```powershell
+# Migrate + seed (free local Postgres/PostGIS in Docker)
+pnpm --filter ./services/api db:migrate
+pnpm --filter ./services/api db:seed
+pnpm --filter ./services/api db:rollback -- --steps 1   # verify down-migration
+```
+
 ## Phase 3 — API contracts (`docs/api-contracts/*.openapi.yaml` + zod in `packages/shared`)
 
 One contract file per module; backend + web + mobile all generate from these:
@@ -97,6 +173,13 @@ One contract file per module; backend + web + mobile all generate from these:
   dispute SLA, AI audit, analytics (GMV, conversion, freshness, dispute/COD rates).
 - Gate: contract tests (schema validation) pass; mock server serves web/mobile dev.
 
+```powershell
+# Contract tests + mock server (all free)
+pnpm --filter ./packages/shared test        # zod schema tests
+pnpm --filter ./services/api test:contracts # OpenAPI validation
+npx @stoplight/prism-cli mock docs/api-contracts/search.openapi.yaml  # local mock API
+```
+
 ## Phase 4 — Backend build order (`services/api`)
 
 1. `common`: error model, auth middleware, RBAC, idempotency, audit writer, geo utils.
@@ -112,6 +195,14 @@ One contract file per module; backend + web + mobile all generate from these:
 - Gate per module: unit + integration tests, incl. oversell race test, double-webhook
   test, expired-quote test.
 
+```powershell
+# Daily backend loop (free toolchain)
+docker compose -f infra/docker/docker-compose.yml up -d
+pnpm --filter ./services/api dev            # API on localhost:3001
+pnpm --filter ./services/api test           # unit + integration
+pnpm --filter ./services/api test:e2e       # oversell race, webhook replay, quote expiry
+```
+
 ## Phase 5 — Web app (`apps/web`)
 
 Build in this order: design-system components → buyer B2C → buyer B2B procurement →
@@ -121,10 +212,20 @@ Gate: §19 acceptance scripts pass on staging (search, retail RFQ→order, selle
 publish, reserve correctness, checkout totals, webhook-confirmed payment, COD POD run,
 dispute lifecycle, AI listing approve flow, audit coverage).
 
+```powershell
+pnpm --filter ./apps/web dev                # web on localhost:3000
+pnpm --filter ./apps/web build              # production check (free Next.js)
+```
+
 ## Phase 6 — Mobile app (`apps/mobile`, Expo)
 
 Buyer parity for search/cart/orders/chat + logistics role (jobs, OTP, POD, COD).
 Offline-tolerant job list (queue status updates). Gate: full COD field run on staging.
+
+```powershell
+npx expo start                               # scan QR with free Expo Go app
+npx expo run:android                          # or run:ios on a Mac
+```
 
 ## Phase 7 — AI layer (`packages/ai`)
 
@@ -136,12 +237,26 @@ Offline-tolerant job list (queue status updates). Gate: full COD field run on st
   marketplace outcomes (search→order rate, listing accept rate).
 - Gate: AI P1 items demoable without touching money/stock directly.
 
+```powershell
+# Free local AI first (no API bill while building)
+ollama pull llama3.1                         # one-time model download, free/open weights
+ollama run llama3.1                          # smoke-test local inference
+pnpm --filter ./packages/ai eval             # copilot quality evals
+# Pilot cloud fallback (free tiers): Groq or Gemini API key in .env only
+```
+
 ## Phase 8 — Integrations
 
 PSP sandbox→live (checkout, webhooks, refunds, settlement recon), SMS/email/push
 (+WhatsApp), maps/geocoding, S3 storage, error/APM monitoring, backups + restore test.
 Compliance pass: NDPA 2023 notices/consents, FCCPC terms (pricing, refunds, complaints),
 licensed-PSP + logistics-partner verification checklist (§23).
+
+```powershell
+# Webhook tunnel for PSP sandbox testing (free)
+npx ngrok http 3001                          # or: npx localtunnel --port 3001
+# Point the Paystack/Flutterwave sandbox webhook URL at the tunnel /payments/webhook
+```
 
 ## Phase 9 — QA + acceptance (§19)
 
