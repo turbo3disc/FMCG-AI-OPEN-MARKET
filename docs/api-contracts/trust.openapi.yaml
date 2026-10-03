@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: FMCG Trust API
+  version: 0.1.0
+paths:
+  /reviews:
+    post:
+      summary: Submit review with FMCG reasons (REV-01)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, rating]
+              properties:
+                order_id: { type: string }
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                reasons: { type: array, items: { type: string } }
+                comment: { type: string }
+      responses:
+        '200':
+          description: review created
+    get:
+      summary: List reviews for seller/offer
+      parameters:
+        - { name: seller_id, in: query, schema: { type: string } }
+        - { name: offer_id, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: review list + aggregates
+  /reports:
+    post:
+      summary: Report listing (expired/misleading/counterfeit)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offer_id: { type: string }
+                reason: { type: string }
+      responses:
+        '200':
+          description: report filed
+  /disputes:
+    post:
+      summary: Open dispute (pauses settlement, §9.2)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, reason]
+              properties:
+                order_id: { type: string }
+                reason: { type: string }
+      responses:
+        '200':
+          description: dispute opened
+    get:
+      summary: List disputes (SLA-sorted)
+      responses:
+        '200':
+          description: dispute list
+  /disputes/{id}/evidence:
+    post:
+      summary: Attach evidence (photos/receipts)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: evidence attached
+  /disputes/{id}/resolve:
+    post:
+      summary: Resolve (refund/replace/release, admin or mediator)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outcome: { type: string, enum: [refund, replace, release_to_seller, split] }
+      responses:
+        '200':
+          description: dispute resolved
+  /disputes/{id}/appeal:
+    post:
+      summary: Appeal a resolution
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: appeal opened

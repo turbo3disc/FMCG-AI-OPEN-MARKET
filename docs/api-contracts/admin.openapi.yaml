@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: FMCG Admin API
+  version: 0.1.0
+paths:
+  /admin/users:
+    get:
+      summary: List users with risk flags
+      responses:
+        '200':
+          description: user list
+  /admin/users/{id}/status:
+    post:
+      summary: Restrict/suspend/restore user (audited)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [active, restricted, suspended] }
+      responses:
+        '200':
+          description: status changed
+  /admin/sellers/{id}/tier:
+    post:
+      summary: Approve/reject Tier-2 upgrade
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: tier decision recorded
+  /admin/canonical/{id}/merge:
+    post:
+      summary: Dedup canonicals (merge duplicate → canonical)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duplicate_id: { type: string }
+      responses:
+        '200':
+          description: canonicals merged
+  /admin/settlements:
+    get:
+      summary: Settlement review queue
+      responses:
+        '200':
+          description: pending settlements
+  /admin/disputes/sla:
+    get:
+      summary: Dispute SLA breaches
+      responses:
+        '200':
+          description: overdue disputes
+  /admin/ai-audit:
+    get:
+      summary: AI prompt/output audit log
+      responses:
+        '200':
+          description: AI audit entries
+  /admin/analytics:
+    get:
+      summary: KPIs — GMV, conversion, freshness, dispute/COD rates (§17)
+      responses:
+        '200':
+          description: analytics snapshot

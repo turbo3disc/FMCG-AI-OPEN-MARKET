@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: FMCG Catalog API
+  version: 0.1.0
+paths:
+  /canonical:
+    get:
+      summary: List canonical products (CAT-01)
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: canonical product list
+    post:
+      summary: Propose canonical product (admin approves)
+      responses:
+        '200':
+          description: pending canonical created
+  /canonical/{id}:
+    get:
+      summary: Canonical detail with linked offers
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: canonical + offers
+  /offers:
+    get:
+      summary: List seller offers with stock/price
+      parameters:
+        - { name: seller_id, in: query, schema: { type: string } }
+        - { name: canonical_id, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: offer list
+    post:
+      summary: Create offer — unit types, bulk breaks, MOQ, zones (CAT-03)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                canonical_id: { type: string }
+                unit_types: { type: array, items: { type: string } }
+                price_kobo: { type: integer }
+                bulk_breaks: { type: array, items: { type: object } }
+                moq: { type: integer }
+      responses:
+        '200':
+          description: offer created (draft or pending link)
+  /offers/{id}:
+    patch:
+      summary: Update price/stock/zones
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: offer updated
+  /offers/{id}/link:
+    post:
+      summary: Link offer to canonical (CAT-05)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: link proposed or confirmed
+  /uploads/url:
+    post:
+      summary: Signed image upload URL (CAT-08)
+      responses:
+        '200':
+          description: signed URL + object key
+  /moderation/queue:
+    get:
+      summary: Canonical/offer moderation queue (admin)
+      responses:
+        '200':
+          description: pending items

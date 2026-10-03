@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: FMCG Logistics API
+  version: 0.1.0
+paths:
+  /drivers:
+    get:
+      summary: List drivers/partners
+      responses:
+        '200':
+          description: driver list
+    post:
+      summary: Onboard driver/partner (LOG-01)
+      responses:
+        '200':
+          description: driver created
+  /delivery-jobs:
+    get:
+      summary: Jobs queue (driver view + admin view)
+      parameters:
+        - { name: status, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: job list
+    post:
+      summary: Assign job to driver/order
+      responses:
+        '200':
+          description: job created
+  /delivery-jobs/{id}/accept:
+    post:
+      summary: Driver accepts job
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: job accepted
+  /delivery-jobs/{id}/pickup:
+    post:
+      summary: Confirm pickup from seller
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: pickup confirmed
+  /delivery-jobs/{id}/deliver:
+    post:
+      summary: Deliver with buyer OTP + POD (LOG-02)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp: { type: string }
+                pod_photo_key: { type: string }
+      responses:
+        '200':
+          description: delivery confirmed
+  /delivery-jobs/{id}/cod-collect:
+    post:
+      summary: Record COD cash collection (LOG-03)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount_kobo: { type: integer }
+      responses:
+        '200':
+          description: COD recorded, pending reconcile
+  /delivery-jobs/{id}/exception:
+    post:
+      summary: Report delivery exception
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: exception logged

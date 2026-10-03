@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: FMCG Quotes (RFQ) API
+  version: 0.1.0
+paths:
+  /rfqs:
+    post:
+      summary: Create RFQ — items, qty, zone, delivery window (ORD-02)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items: { type: array, items: { type: object } }
+                zone_id: { type: string }
+                expires_at: { type: string, format: date-time }
+      responses:
+        '200':
+          description: RFQ created
+    get:
+      summary: List RFQs (buyer outbox / seller inbox)
+      parameters:
+        - { name: view, in: query, schema: { type: string, enum: [outbox, inbox] } }
+      responses:
+        '200':
+          description: RFQ list
+  /rfqs/{id}/quotes:
+    post:
+      summary: Seller submits quote version
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price_kobo: { type: integer }
+                qty: { type: integer }
+                valid_until: { type: string, format: date-time }
+      responses:
+        '200':
+          description: quote version created
+    get:
+      summary: Quote version history / counter-offer chain
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: versions newest-first
+  /quotes/{id}/counter:
+    post:
+      summary: Counter-offer (buyer or seller)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: new version appended
+  /quotes/{id}/accept:
+    post:
+      summary: Accept quote → creates order with PO ref (ORD-04)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                po_ref: { type: string }
+      responses:
+        '200':
+          description: order created from quote
+  /quotes/{id}/decline:
+    post:
+      summary: Decline or expire quote
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: quote declined/expired

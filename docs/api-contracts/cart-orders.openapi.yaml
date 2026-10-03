@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: FMCG Cart & Orders API
+  version: 0.1.0
+paths:
+  /cart:
+    get:
+      summary: Get active cart (single-seller enforced)
+      responses:
+        '200':
+          description: cart with lines + totals
+    post:
+      summary: Add line — validates MOQ/zone (CART-01)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offer_id: { type: string }
+                qty: { type: integer }
+                unit_type: { type: string, enum: [piece, pack, carton] }
+      responses:
+        '200':
+          description: cart updated
+  /cart/lines/{id}:
+    patch:
+      summary: Update line qty/unit
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: line updated
+    delete:
+      summary: Remove line
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: line removed
+  /checkout:
+    post:
+      summary: Checkout with idempotency key → order group + child orders (ORD-01)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [idempotency_key, payment_method]
+              properties:
+                idempotency_key: { type: string }
+                payment_method: { type: string, enum: [paystack, flutterwave, cod] }
+                address_id: { type: string }
+      responses:
+        '200':
+          description: order group + per-seller child orders with totals
+  /orders:
+    get:
+      summary: List buyer/seller orders
+      parameters:
+        - { name: role, in: query, schema: { type: string, enum: [buyer, seller] } }
+        - { name: status, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: order list
+  /orders/{id}:
+    get:
+      summary: Order detail with lifecycle + payment state
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: order detail
+  /orders/{id}/transition:
+    post:
+      summary: Lifecycle transition (confirm/prepare/cancel/complete)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to: { type: string }
+      responses:
+        '200':
+          description: order transitioned
+  /orders/{id}/reorder:
+    post:
+      summary: Reorder a past order into a new cart
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: new cart seeded

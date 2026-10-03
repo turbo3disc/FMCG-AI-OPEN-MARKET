@@ -1,0 +1,14 @@
+{
+  "name": "@fmcg/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Vendor-abstracted AI layer for FMCG Open Market (ADR-0009). No external deps.",
+  "scripts": {
+    "eval": "node --experimental-strip-types src/eval.ts",
+    "test": "node --test src/**/*.test.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: FMCG Identity API
+  version: 0.1.0
+paths:
+  /auth/register:
+    post:
+      summary: Register with phone or email (ACC-01)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: OTP sent / user created
+  /auth/otp/verify:
+    post:
+      summary: Verify OTP and issue session (ACC-02)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone: { type: string }
+                code: { type: string }
+      responses:
+        '200':
+          description: access + refresh tokens
+  /auth/login:
+    post:
+      summary: Login with phone/OTP or email/password (ACC-03)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: tokens + profile context
+  /auth/refresh:
+    post:
+      summary: Rotate refresh token (ACC-04)
+      responses:
+        '200':
+          description: new token pair
+  /profiles:
+    get:
+      summary: List buyer/seller profiles for user
+      responses:
+        '200':
+          description: profile contexts + tier
+    post:
+      summary: Create buyer or seller profile (ACC-05)
+      responses:
+        '200':
+          description: profile created
+  /profiles/{id}/switch:
+    post:
+      summary: Switch active profile context
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: active context switched
+  /addresses:
+    get:
+      summary: List delivery addresses
+      responses:
+        '200':
+          description: address list
+    post:
+      summary: Add address with lat/lng
+      responses:
+        '200':
+          description: address created
+  /sellers/tier-upgrade:
+    post:
+      summary: Request Tier-2 verification (ACC-07)
+      responses:
+        '200':
+          description: upgrade request queued

@@ -1,0 +1,69 @@
+openapi: 3.0.3
+info:
+  title: FMCG Payments API
+  version: 0.1.0
+paths:
+  /payments/initialize:
+    post:
+      summary: Initialize PSP charge (Paystack/Flutterwave), returns auth URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_group_id, provider]
+              properties:
+                order_group_id: { type: string }
+                provider: { type: string, enum: [paystack, flutterwave] }
+      responses:
+        '200':
+          description: auth URL + reference
+  /payments/webhook:
+    post:
+      summary: PSP webhook — signature-verified, retry-safe, idempotent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reference: { type: string }
+                event: { type: string }
+      responses:
+        '200':
+          description: webhook accepted (deduped by reference+event)
+  /payments/status/{reference}:
+    get:
+      summary: Payment status for a reference
+      parameters:
+        - { name: reference, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: payment state + ledger entries
+  /payments/{id}/refund:
+    post:
+      summary: Request refund (→ approval → PSP refund)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount_kobo: { type: integer }
+                reason: { type: string }
+      responses:
+        '200':
+          description: refund requested
+  /settlements:
+    get:
+      summary: Per-seller settlement splits for an order group
+      parameters:
+        - { name: order_group_id, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: settlement list
