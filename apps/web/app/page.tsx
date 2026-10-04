@@ -13,6 +13,7 @@ export default function HomePage() {
         <div style={{ marginTop: 16, maxWidth: 560 }}>
           <SearchBar />
         </div>
+        <div className="credit">Photo: Mile 12 Market, Lagos — ShoT88 Studios, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, via Wikimedia Commons</div>
       </header>
 
       <h2 className="section">Categories</h2>

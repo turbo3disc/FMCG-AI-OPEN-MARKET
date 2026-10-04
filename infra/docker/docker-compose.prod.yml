@@ -1,0 +1,48 @@
+# Production stack — single VPS / any Docker host (no Netlify).
+# Uses managed Neon Postgres (no local db). Redis + MinIO bundled for pilot.
+# Run: docker compose -f infra/docker/docker-compose.prod.yml up -d --build
+# Required env (export or .env.prod, NEVER commit secrets):
+#   DATABASE_URL=<neon pooled URL>
+#   JWT_SECRET=<long random>
+#   FRONTEND_URL=https://<web-domain>
+#   NEXT_PUBLIC_API_URL=https://<api-domain>/api
+name: fmcg-open-market-prod
+
+services:
+  api:
+    build: ../../services/api
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL:?set FRONTEND_URL}
+      PSP_PROVIDER: ${PSP_PROVIDER:-paystack-sandbox}
+      PSP_SECRET_KEY: ${PSP_SECRET_KEY:-}
+    ports: ["3001:3001"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build: ../../apps/web
+    environment:
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?set NEXT_PUBLIC_API_URL}
+    ports: ["3000:3000"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes: [redisdata:/data]
+    restart: unless-stopped
+
+volumes:
+  redisdata:

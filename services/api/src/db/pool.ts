@@ -2,9 +2,20 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
+const connectionString =
+  process.env.DATABASE_URL ?? 'postgres://fmcg:fmcg@localhost:5432/fmcg';
+
+// Neon / managed Postgres requires TLS. pg honors sslmode in the URL on
+// most hosts, but set it explicitly so production (sslmode=require) works.
+const needsSSL =
+  connectionString.includes('sslmode=require') ||
+  connectionString.includes('neon.tech') ||
+  process.env.PGSSL === '1';
+
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL ?? 'postgres://fmcg:fmcg@localhost:5432/fmcg',
+  connectionString,
   max: 20,
+  ...(needsSSL ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 export type TxClient = {

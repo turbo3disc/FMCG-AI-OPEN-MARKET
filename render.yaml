@@ -1,0 +1,32 @@
+# Render blueprint — API (Node) + Web (Next.js). No Netlify.
+# Import this repo in Render → New → Blueprint → render.yaml
+services:
+  - type: web
+    name: fmcg-api
+    runtime: node
+    rootDir: services/api
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # paste Neon pooled URL
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false # paste https://<web>.onrender.com after web is created
+      - key: PSP_PROVIDER
+        value: paystack-sandbox
+
+  - type: web
+    name: fmcg-web
+    runtime: node
+    rootDir: apps/web
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false # paste https://fmcg-api.onrender.com/api
