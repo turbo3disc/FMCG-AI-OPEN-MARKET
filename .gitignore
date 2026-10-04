@@ -9,6 +9,7 @@ build/
 .env
 .env.local
 .env.*.local
+.neon/
 
 # OS / editor
 .DS_Store
@@ -18,3 +19,4 @@ Thumbs.db
 
 # logs
 *.log
+.neon

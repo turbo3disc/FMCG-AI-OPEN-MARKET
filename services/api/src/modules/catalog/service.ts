@@ -31,6 +31,15 @@ export async function createCanonical(input: { name: string; brand?: string; cat
 export const getCanonical = async (id: string) =>
   (await pool.query(`SELECT * FROM canonical_products WHERE id = $1`, [id])).rows[0] ?? Promise.reject(ApiError.notFound('canonical product not found'));
 
+// --- Seller helpers ---
+// Resolve the seller_profiles.id for a user. Never trust a raw user id as a
+// seller id (UUID mismatch → 500); buyers have no seller profile.
+export async function resolveSeller(userId: string): Promise<string> {
+  const r = await pool.query(`SELECT id FROM seller_profiles WHERE user_id = $1 ORDER BY created_at LIMIT 1`, [userId]);
+  if (!r.rows.length) throw ApiError.forbidden('seller profile required');
+  return (r.rows[0] as { id: string }).id;
+}
+
 // --- Seller offers ---
 export const listOffers = async (sellerId?: string, status?: string) => {
   const conds: string[] = [];
