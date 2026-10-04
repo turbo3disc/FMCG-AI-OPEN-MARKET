@@ -11,7 +11,7 @@ const dir = join(here, '..', '..', '..', '..', 'infra', 'db', 'migrations');
 
 await pool.query(`CREATE TABLE IF NOT EXISTS schema_migrations (filename TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())`);
 const done = new Set(
-  (await pool.query(`SELECT filename FROM schema_migrations`)).rows.map((r) => (r as { filename: string }).filename),
+  (await pool.query(`SELECT filename FROM schema_migrations`)).rows.map((r: { filename: string }) => r.filename),
 );
 const files = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
 let applied = 0;

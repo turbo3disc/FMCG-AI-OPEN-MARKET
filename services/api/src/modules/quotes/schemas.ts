@@ -1,6 +1,6 @@
 import { ApiError } from '../../common/errors.js';
 
-export function validateRfq(b: Record<string, unknown>): { sellerId?: string; canonicalProductId?: string; title: string; qty: number; unitType: string; targetPriceKobo?: number; expiresInHours?: number } {
+export function validateRfq(b: Record<string, unknown>): { sellerId?: string; canonicalProductId?: string; title: string; qty: number; unitType: string; targetPriceKobo?: number; expiresInHours: number } {
   const { sellerId, canonicalProductId, title, qty, unitType, targetPriceKobo, expiresInHours } = b as Record<string, string | number | undefined>;
   if (typeof title !== 'string' || !title) throw ApiError.badRequest('title required');
   if (!Number.isInteger(qty) || (qty as number) < 1) throw ApiError.badRequest('qty must be integer >= 1');

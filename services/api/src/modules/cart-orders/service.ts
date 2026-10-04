@@ -1,5 +1,5 @@
 import { pool, withTx, type TxClient } from '../../db/pool.js';
-import { priceForQty, type PriceBreak } from '../../../../../packages/shared/src/index.js';
+import { priceForQty, type PriceBreak } from '../../common/money.js';
 import { writeAudit } from '../../common/audit.js';
 import { ApiError } from '../../common/errors.js';
 import { assertTransition } from './schemas.js';

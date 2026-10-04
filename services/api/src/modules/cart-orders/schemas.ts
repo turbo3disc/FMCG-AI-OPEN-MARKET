@@ -1,5 +1,5 @@
 import { ApiError } from '../../common/errors.js';
-import type { OrderStatus } from '../../../../../packages/shared/src/index.js';
+import type { OrderStatus } from '../../common/money.js';
 
 export function validateCartLine(b: Record<string, unknown>): { offerId: string; qty: number } {
   const { offerId, qty } = b;

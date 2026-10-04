@@ -1,5 +1,5 @@
 import { ApiError } from '../../common/errors.js';
-import type { PaymentState } from '../../../../../packages/shared/src/index.js';
+import type { PaymentState } from '../../common/money.js';
 
 export const PAYMENT_STATES: readonly PaymentState[] = [
   'PENDING', 'PROTECTED', 'OUT_FOR_DELIVERY', 'DELIVERED_PENDING_CONFIRMATION',
