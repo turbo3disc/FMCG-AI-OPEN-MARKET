@@ -1,4 +1,5 @@
 // @fmcg/api — modular monolith entry (ADR-0004). Health first, modules mount here.
+import 'dotenv/config';
 import Fastify from 'fastify';
 import { registerErrorHandler } from './common/errors.js';
 import { identityRoutes } from './modules/identity/routes.js';
@@ -13,6 +14,16 @@ import { adminRoutes } from './modules/admin/routes.js';
 
 const app = Fastify({ logger: true });
 registerErrorHandler(app);
+
+// Capture the raw JSON body for HMAC webhook verification (Paystack signs exact bytes).
+app.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+  (req as unknown as { rawBody?: string }).rawBody = body as string;
+  try {
+    done(null, JSON.parse(body as string));
+  } catch (err) {
+    done(err as Error, undefined);
+  }
+});
 
 app.get('/health', async () => ({ ok: true, service: 'fmcg-api', version: '0.1.0' }));
 
