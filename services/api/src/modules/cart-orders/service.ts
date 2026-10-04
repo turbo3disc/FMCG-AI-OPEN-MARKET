@@ -103,8 +103,17 @@ export const listOrders = async (userId: string, role: string) =>
     [userId],
   )).rows;
 
-export async function transitionOrder(orderId: string, to: string, actorId: string) {
-  const r = await pool.query(`SELECT id, status FROM orders WHERE id = $1`, [orderId]);
+export async function getOrder(orderId: string, userId: string) {
+  const o = (await pool.query(
+    `SELECT * FROM orders WHERE id = $1 AND (buyer_id = $2 OR seller_id IN (SELECT id FROM seller_profiles WHERE user_id = $2))`,
+    [orderId, userId],
+  )).rows[0];
+  if (!o) throw ApiError.notFound('order not found');
+  const items = (await pool.query(`SELECT * FROM order_items WHERE order_id = $1`, [orderId])).rows;
+  return { order: o, items };
+}
+
+export async function transitionOrder(orderId: string, to: string, actorId: string) {  const r = await pool.query(`SELECT id, status FROM orders WHERE id = $1`, [orderId]);
   const order = r.rows[0] as { id: string; status: string } | undefined;
   if (!order) throw ApiError.notFound('order not found');
   assertTransition(order.status, to);

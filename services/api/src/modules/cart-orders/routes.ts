@@ -26,6 +26,9 @@ export async function cartOrderRoutes(app: FastifyInstance): Promise<void> {
     const u = (req as unknown as U).user!;
     return s.listOrders(u.id, u.role);
   });
+  app.get('/orders/:id', { preHandler: [requireAuth] }, async (req) =>
+    s.getOrder((req.params as { id: string }).id, (req as unknown as U).user!.id),
+  );
   app.post('/orders/:id/transition', { preHandler: [requireAuth] }, async (req) =>
     s.transitionOrder((req.params as { id: string }).id, ((req.body ?? {}) as { to: string }).to, (req as unknown as U).user!.id),
   );
