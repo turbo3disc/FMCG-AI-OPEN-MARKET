@@ -3,6 +3,7 @@
 
 import type { ParsedSearch, TaskOutput, UnitType, VendorAdapter } from '../types.js';
 import { QTY_RE, RADIUS_RE, PRICE_RE } from '../vendors/stub.js';
+import { asPosInt, asUnit, extractJson, pickAdapter } from '../smart.js';
 
 const PIDGIN_QTY: Array<[RegExp, number]> = [
   [/one\s+carton/i, 1],
@@ -69,10 +70,30 @@ export function interpretationOf(p: ParsedSearch): string {
 
 export async function parseSearchQuery(
   text: string,
-  _adapter?: VendorAdapter,
+  adapter?: VendorAdapter,
 ): Promise<TaskOutput<ParsedSearch>> {
-  // Deterministic rule parse is the source of truth for P1; vendor LLMs only
-  // rephrase. Keeps evals stable offline.
+  // Cloud LLM first (validated + rule-backed per field), rules as ground truth.
+  const a = await pickAdapter(adapter);
+  if (a) {
+    try {
+      const out = await a.complete(
+        `Extract FMCG search params as JSON {"q": product words, "qty": integer, "unit_type": "piece"|"pack"|"carton", "radius_km": number, "max_price_kobo": integer|null} from: ${text}`,
+        { temperature: 0, maxTokens: 256 },
+      );
+      const j = extractJson(out.text);
+      const fb = ruleParse(text);
+      const data: ParsedSearch = {
+        q: typeof j.q === 'string' && j.q.trim() ? j.q.trim().slice(0, 120) : fb.q,
+        qty: asPosInt(j.qty, fb.qty),
+        unit_type: asUnit(j.unit_type, fb.unit_type),
+        radius_km: typeof j.radius_km === 'number' && j.radius_km > 0 && j.radius_km <= 100 ? j.radius_km : fb.radius_km,
+        max_price_kobo: typeof j.max_price_kobo === 'number' && j.max_price_kobo > 0 ? Math.round(j.max_price_kobo) : fb.max_price_kobo,
+      };
+      return { data, confidence: 0.9, needsConfirm: true, interpretation: interpretationOf(data), model: out.model };
+    } catch {
+      /* fall through to deterministic rules */
+    }
+  }
   const data = ruleParse(text);
   return {
     data,

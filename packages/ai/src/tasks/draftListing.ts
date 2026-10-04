@@ -1,6 +1,7 @@
 // draftListing — seller keywords/images-meta → draft listing (seller must publish).
 
 import type { ListingDraft, TaskOutput, VendorAdapter } from '../types.js';
+import { extractJson, pickAdapter } from '../smart.js';
 
 export interface DraftListingInput {
   keywords: string;
@@ -25,10 +26,7 @@ function titleFrom(keywords: string): string {
   return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
-export async function draftListing(
-  input: DraftListingInput,
-  _adapter?: VendorAdapter,
-): Promise<TaskOutput<ListingDraft>> {
+export function ruleDraft(input: DraftListingInput): TaskOutput<ListingDraft> {
   const { keywords, imageMeta = [], categoryHint } = input;
   const suggestedCategory = guessCategory(`${keywords} ${imageMeta.join(' ')}`, categoryHint);
   const title = titleFrom(keywords) || 'Untitled product';
@@ -50,4 +48,32 @@ export async function draftListing(
     interpretation: `Draft listing "${title}" in ${suggestedCategory}. Review and publish — nothing is live until you approve.`,
     model: 'stub/draft-v1',
   };
+}
+
+export async function draftListing(
+  input: DraftListingInput,
+  adapter?: VendorAdapter,
+): Promise<TaskOutput<ListingDraft>> {
+  const a = await pickAdapter(adapter);
+  if (a && input.keywords.trim()) {
+    try {
+      const out = await a.complete(
+        `Write an FMCG marketplace listing as JSON {"title": string, "description": string, "tags": string[max 8], "suggestedCategory": "groceries"|"beverages"|"household essentials"} for: ${input.keywords}. Photos: ${(input.imageMeta ?? []).join('; ') || 'none'}.`,
+        { temperature: 0.4, maxTokens: 512 },
+      );
+      const j = extractJson(out.text);
+      const fb = ruleDraft(input).data;
+      const data: ListingDraft = {
+        title: typeof j.title === 'string' && j.title.trim() ? j.title.trim().slice(0, 120) : fb.title,
+        description: typeof j.description === 'string' && j.description.trim() ? j.description.trim().slice(0, 600) : fb.description,
+        tags: Array.isArray(j.tags) && j.tags.length ? (j.tags as unknown[]).filter((t): t is string => typeof t === 'string').slice(0, 8) : fb.tags,
+        suggestedCategory: typeof j.suggestedCategory === 'string' && j.suggestedCategory ? j.suggestedCategory.slice(0, 40) : fb.suggestedCategory,
+        draft: true,
+      };
+      return { data, confidence: 0.85, needsConfirm: true, interpretation: `Draft listing "${data.title}" in ${data.suggestedCategory}. Review and publish — nothing is live until you approve.`, model: out.model };
+    } catch {
+      /* fall through to deterministic rules */
+    }
+  }
+  return ruleDraft(input);
 }
