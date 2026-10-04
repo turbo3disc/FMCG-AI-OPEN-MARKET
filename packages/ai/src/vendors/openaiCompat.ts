@@ -10,7 +10,7 @@
 import type { CompleteOpts, CompleteResult, VendorAdapter } from '../types.js';
 
 const PRESETS: Record<string, { base: string; model: string }> = {
-  groq: { base: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant' },
+  groq: { base: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-20b' },
   openai: { base: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
 };
 
