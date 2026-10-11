@@ -30,7 +30,7 @@ export default function Orders() {
                   {names}
                 </Text>
                 <Text style={common.muted}>
-                  {item.status.replaceAll('_', ' ')} · {item.paymentState} · {formatNGN(item.totalKobo)}
+                  {item.status.split('_').join(' ')} · {item.paymentState} · {formatNGN(item.totalKobo)}
                 </Text>
               </Pressable>
             </Link>

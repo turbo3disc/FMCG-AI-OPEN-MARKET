@@ -6,9 +6,32 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "primaryColor": "#00A651",
-    "plugins": ["expo-router"],
-    "experiments": { "router": true, "typedRoutes": true },
-    "ios": { "supportsTablet": true },
-    "android": { "package": "com.fmcg.openmarket" }
+    "icon": "./assets/icon.png",
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "router": true,
+      "typedRoutes": true
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.fmcg.openmarket",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#00703A"
+      }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "82a1b6ac-a83a-419e-abd7-e1e05dc3606d"
+      }
+    },
+    "owner": "turbo3disc"
   }
 }

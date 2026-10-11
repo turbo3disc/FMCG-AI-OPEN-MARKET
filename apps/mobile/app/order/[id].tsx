@@ -1,8 +1,8 @@
 import { Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { orders, productById, sellerOf } from '../lib/demo';
-import { formatNGN } from '../lib/money';
-import { common, palette } from '../lib/theme';
+import { orders, productById, sellerOf } from '../../lib/demo';
+import { formatNGN } from '../../lib/money';
+import { common, palette } from '../../lib/theme';
 import { trackerStep } from '../orders';
 
 const LABELS = ['Confirmed', 'Preparing', 'Out for delivery', 'Delivered', 'Completed'];
