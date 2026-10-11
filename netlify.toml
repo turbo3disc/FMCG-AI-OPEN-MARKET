@@ -6,7 +6,8 @@
 [build]
   base = "apps/web"
   command = "npm ci && npm run build"
-  publish = "apps/web/.next"
+  # NOTE: publish is relative to base, so this means apps/web/.next
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
