@@ -5,6 +5,11 @@ build/
 .next/
 .expo/
 
+# next-pwa build artifacts (regenerated every build)
+apps/web/public/sw.js
+apps/web/public/workbox-*.js
+apps/web/public/fallback-*.js
+
 # env
 .env
 .env.local
