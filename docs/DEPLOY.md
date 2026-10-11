@@ -1,4 +1,26 @@
-# Go live without Netlify
+# Go live — hosting guide (Netlify web + Render API)
+
+## Option 0 — Netlify (free domain, auto-deploy) — RECOMMENDED for the web
+
+Netlify hosts the **storefront only** (`apps/web`). The Fastify API still needs
+Render (below) — Netlify can't run long-lived Node servers.
+
+**One-time connect (~3 min, you do this in your Netlify account):**
+1. Netlify → **Add new site → Import an existing project → GitHub** → pick
+   `turbo3disc/FMCG-AI-OPEN-MARKET`.
+2. Settings Netlify auto-fills from `netlify.toml` — confirm:
+   - Base directory: `apps/web` — Build: `npm ci && npm run build` — Publish: `apps/web/.next`
+3. **Site settings → Environment variables** → add:
+   - `NEXT_PUBLIC_API_URL` = `https://<your-api>.onrender.com/api` (after Render step below)
+4. **Deploy site** → you get `https://<yourname>.netlify.app` free. Change the
+   name under Site settings → Site name.
+5. Back in the Render API service, set `FRONTEND_URL=https://<yourname>.netlify.app` and redeploy.
+
+**Auto-deploy:** every `git push` to `main` rebuilds + republishes automatically.
+Branch pushes get free preview URLs. Nothing to run — pushing IS deploying.
+
+> honestly: Netlify fits the web frontend well. The earlier "skip Netlify"
+> advice was about the API, which still belongs on Render/Fly/VPS.
 
 Netlify is intentionally skipped: Next.js is native on Vercel, and the
 Fastify API needs a long-running Node host (Render/Fly/Railway/VPS).

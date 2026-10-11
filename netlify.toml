@@ -1,0 +1,18 @@
+# Netlify — hosts the Next.js storefront (free yourname.netlify.app domain).
+# The Fastify API CANNOT run on Netlify (needs long-running Node) — keep it on
+# Render/Fly/VPS and point NEXT_PUBLIC_API_URL at it (Netlify UI → Site settings
+# → Environment variables). Auto-deploy is on by default: every push to main
+# rebuilds + republishes the site, no action needed.
+[build]
+  base = "apps/web"
+  command = "npm ci && npm run build"
+  publish = "apps/web/.next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Cache Next.js build output between deploys
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
