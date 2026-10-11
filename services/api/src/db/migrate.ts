@@ -1,5 +1,6 @@
 // Migration runner: applies infra/db/migrations/*.sql in filename order.
 // Usage (compiled): node dist/db/migrate.js — tracks applied files in schema_migrations.
+import 'dotenv/config';
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

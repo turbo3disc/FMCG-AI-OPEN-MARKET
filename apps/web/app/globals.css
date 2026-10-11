@@ -20,13 +20,22 @@ a:hover{text-decoration:underline}
 .brand-mark{color:var(--primary);margin-right:6px;font-size:20px}
 .topnav-links{display:flex;gap:14px;font-size:14px;font-weight:600;flex-wrap:wrap}
 .footer{max-width:1100px;margin:0 auto;padding:24px 20px 48px;font-size:12px;color:var(--muted);text-align:center}
-.hero{background:linear-gradient(100deg,rgba(0,60,30,.92) 0%,rgba(0,112,58,.78) 45%,rgba(0,112,58,.45) 100%),url('/hero-mile12.jpg') center 35%/cover;color:#fff;border-radius:16px;padding:56px 32px;margin-bottom:28px;min-height:340px;display:flex;flex-direction:column;justify-content:flex-end}
-.hero h1{font-size:32px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.45)}
-.hero p{opacity:.95;max-width:640px;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.45)}
-.hero .credit{font-size:11px;opacity:.75;margin-top:14px}
-.hero .credit a{color:#fff}
-.hero h1{font-size:28px;margin-bottom:6px}
-.hero p{opacity:.92;max-width:640px;font-size:15px}
+.hero-mix{position:relative;border-radius:16px;overflow:hidden;margin-bottom:28px;background:#062B1A;color:#fff;box-shadow:var(--shadow)}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3px;min-height:420px;background:#062B1A}
+.hero-photo{position:relative;overflow:hidden;background:linear-gradient(135deg,#0A5C36,#083D25)}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.03)}
+.hero-photo:nth-child(2) img{object-position:center 20%}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(100deg,rgba(3,35,20,.95) 0%,rgba(3,40,22,.80) 38%,rgba(3,40,22,.30) 68%,rgba(3,40,22,.45) 100%)}
+.hero-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:44px 36px}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(255,184,0,.16);border:1px solid rgba(255,184,0,.55);color:#FFD97A;padding:6px 12px;border-radius:999px;margin-bottom:12px}
+.hero-kicker .dot{background:#FFB800}
+.hero-content h1{font-size:36px;line-height:1.15;margin-bottom:8px;text-shadow:0 2px 10px rgba(0,0,0,.5);max-width:640px}
+.hero-content p{opacity:.95;max-width:640px;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.hero-cta{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.hero-ghost{background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.7)}
+.hero-ghost:hover{background:rgba(255,255,255,.22);text-decoration:none}
+.hero-stats{display:flex;gap:22px;margin-top:20px;font-size:13px;opacity:.92;flex-wrap:wrap}
+.hero-stats b{color:#FFD97A}
 h2.section{font-size:20px;margin:36px 0 6px}
 p.sub{color:var(--muted);font-size:14px;margin-bottom:16px}
 .grid{display:grid;gap:16px}
@@ -85,7 +94,7 @@ input,select,textarea{font-family:var(--font);font-size:14px;padding:10px 12px;b
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
 label.field{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:640px){.form-row{grid-template-columns:1fr}.hero{padding:24px 20px}.hero h1{font-size:22px}}
+@media(max-width:640px){.form-row{grid-template-columns:1fr}.hero-mix{border-radius:12px}.hero-grid{grid-template-columns:1fr;min-height:560px}.hero-photo{min-height:120px}.hero-content{padding:28px 20px}.hero-content h1{font-size:25px}}
 .notice{border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;margin:12px 0}
 .notice.info{background:var(--sky-soft);color:#0B5C7C}
 .notice.warn{background:var(--accent-soft);color:#7A5200}
@@ -93,3 +102,11 @@ label.field{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
 .totals{font-size:14px;line-height:2}
 .totals .grand{font-size:18px;font-weight:800;border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
 .kicker{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-dark)}
+@media print{
+  body{background:#fff}
+  .topnav,.footer,.no-print{display:none!important}
+  .wrap{max-width:none;padding:0}
+  body *{visibility:hidden}
+  .print-area,.print-area *{visibility:visible}
+  .print-area{position:absolute;left:0;right:0;top:0;padding:16px;color:#000}
+}

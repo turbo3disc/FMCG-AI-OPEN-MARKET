@@ -12,6 +12,7 @@ import { paymentRoutes } from './modules/payments/routes.js';
 import { logisticsRoutes } from './modules/logistics/routes.js';
 import { trustRoutes } from './modules/trust/routes.js';
 import { adminRoutes } from './modules/admin/routes.js';
+import { salesRoutes } from './modules/sales/routes.js';
 
 const app = Fastify({ logger: true, trustProxy: true });
 registerErrorHandler(app);
@@ -55,6 +56,7 @@ await app.register(paymentRoutes, { prefix: '/api/payments' });
 await app.register(logisticsRoutes, { prefix: '/api/logistics' });
 await app.register(trustRoutes, { prefix: '/api/trust' });
 await app.register(adminRoutes, { prefix: '/api/admin' });
+await app.register(salesRoutes, { prefix: '/api/pos' });
 
 const port = Number(process.env.PORT ?? 3001);
 try {

@@ -13,9 +13,24 @@ export interface AuditInput {
 }
 
 export async function writeAudit(db: DbLike, input: AuditInput): Promise<void> {
-  await db.query(
-    `INSERT INTO audit_events (actor_id, action, entity, entity_id, meta)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [input.actorId ?? null, input.action, input.entity, input.entityId ?? null, JSON.stringify(input.meta ?? {})],
-  );
+  const params = [input.actorId ?? null, input.action, input.entity, input.entityId ?? null, JSON.stringify(input.meta ?? {})];
+  try {
+    await db.query(
+      `INSERT INTO audit_events (actor_id, action, entity, entity_id, meta)
+       VALUES ($1, $2, $3, $4, $5)`,
+      params,
+    );
+  } catch (e) {
+    // Dev tokens carry non-UUID actor ids (e.g. 'dev-buyer-1'); audit must
+    // never break the business action — record with a NULL actor instead.
+    if ((e as { code?: string }).code === '22P02') {
+      await db.query(
+        `INSERT INTO audit_events (actor_id, action, entity, entity_id, meta)
+         VALUES (NULL, $1, $2, $3, $4)`,
+        [input.action, input.entity, input.entityId ?? null, JSON.stringify(input.meta ?? {})],
+      );
+      return;
+    }
+    throw e;
+  }
 }

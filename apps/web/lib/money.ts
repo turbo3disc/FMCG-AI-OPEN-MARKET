@@ -1,7 +1,7 @@
 // Local money helpers — copied from packages/shared (ADR-0001).
 // Money: integer kobo. Display: formatNGN. Quantities: integer per unit type.
 
-export type UnitType = 'piece' | 'pack' | 'carton';
+export type UnitType = 'piece' | 'pack' | 'carton' | 'roll';
 
 export interface PriceBreak {
   minQty: number;

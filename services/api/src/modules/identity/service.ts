@@ -1,7 +1,9 @@
 import crypto from 'node:crypto';
 import { pool, withTx, type TxClient } from '../../db/pool.js';
 import { writeAudit } from '../../common/audit.js';
+import { notify } from '../../common/notify.js';
 import { ApiError } from '../../common/errors.js';
+import type { SellerApplication } from './schemas.js';
 
 export const DEV_OTP = '123456';
 
@@ -28,7 +30,6 @@ export async function register(input: { phone?: string; email?: string; password
 }
 
 export async function verifyOtp(phone: string, code: string) {
-  // Dev stub: accepts 123456. Real Termii/WhatsApp OTP later.
   if (code !== DEV_OTP && process.env.NODE_ENV === 'production') throw ApiError.unauthorized('invalid otp');
   if (code !== DEV_OTP) throw ApiError.unauthorized('invalid otp (dev code is 123456)');
   const r = await pool.query(`SELECT id, phone, email, status FROM users WHERE phone = $1`, [phone]);
@@ -97,4 +98,53 @@ export const deleteAddress = async (userId: string, id: string) => {
   const r = await pool.query(`DELETE FROM addresses WHERE id = $1 AND user_id = $2 RETURNING id`, [id, userId]);
   if (!r.rows.length) throw ApiError.notFound('address not found');
   return { deleted: id };
+};
+
+// --- Seller onboarding: public application → pending → admin approval ---
+export async function applySeller(a: SellerApplication) {
+  const out = await withTx(async (tx: TxClient) => {
+    let userId: string | undefined;
+    const existing = await tx.query(`SELECT id FROM users WHERE phone = $1 OR email = $2`, [a.phone ?? null, a.email ?? null]);
+    if (existing.rows.length) {
+      userId = (existing.rows[0] as { id: string }).id;
+      if (a.password) {
+        await tx.query(`UPDATE users SET password_hash = $2 WHERE id = $1`, [userId, hash(a.password)]);
+      }
+      const dup = await tx.query(`SELECT id, verification_status FROM seller_profiles WHERE user_id = $1`, [userId]);
+      if (dup.rows.length) {
+        const st = (dup.rows[0] as { verification_status: string }).verification_status;
+        if (st === 'pending') throw ApiError.conflict('application already under review');
+        if (st === 'approved') throw ApiError.conflict('seller already approved — open your dashboard');
+      }
+    } else {
+      const u = await tx.query(`INSERT INTO users (phone, email, password_hash) VALUES ($1,$2,$3) RETURNING id`,
+        [a.phone ?? null, a.email ?? null, a.password ? hash(a.password) : null]);
+      userId = (u.rows[0] as { id: string }).id;
+    }
+    const sp = await tx.query(
+      `INSERT INTO seller_profiles (user_id, seller_type, business_name, contact_name, email, address_line1, city, lat, lng, verification_status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending') RETURNING *`,
+      [userId, a.sellerType, a.businessName, a.contactName, a.email ?? null, a.addressLine1, a.city, a.lat ?? null, a.lng ?? null],
+    );
+    const profile = sp.rows[0];
+    await tx.query(`INSERT INTO addresses (user_id, label, line1, city, lat, lng) VALUES ($1,'shop',$2,$3,$4,$5)`,
+      [userId, a.addressLine1, a.city, a.lat ?? null, a.lng ?? null]);
+    await writeAudit(tx, { actorId: userId!, action: 'seller.apply', entity: 'seller_profiles', entityId: (profile as { id: string }).id });
+    return profile;
+  });
+  // Acknowledge on the seller's chosen channel (never blocks the response).
+  const to = a.notifyChannel === 'email' ? a.email! : a.phone!;
+  const ack = await notify(a.notifyChannel, to, 'seller.application_received', { business: a.businessName }).catch(() => ({ id: 'failed', status: 'failed' }));
+  return { profile: out, ack };
+}
+
+export const sellerStatus = async (phone?: string, email?: string) => {
+  if (!phone && !email) throw ApiError.badRequest('phone or email required');
+  const r = await pool.query(
+    `SELECT s.*, u.phone FROM seller_profiles s JOIN users u ON u.id = s.user_id
+     WHERE u.phone = $1 OR u.email = $2 ORDER BY s.created_at DESC LIMIT 1`,
+    [phone ?? null, email ?? null],
+  );
+  if (!r.rows.length) throw ApiError.notFound('no seller application found');
+  return r.rows[0];
 };

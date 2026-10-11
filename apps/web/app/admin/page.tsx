@@ -1,12 +1,16 @@
 import { formatNGN } from '../../lib/money';
+import AdminGate from '../../components/AdminGate';
+import SellerModeration from '../../components/SellerModeration';
 import { orders, products, sellers } from '../../lib/demo';
 
 export default function AdminPage() {
   return (
+    <AdminGate>
     <div>
       <h1>Admin console</h1>
-      <p className="sub">Moderation queues • settlements • disputes. Finance actions need MFA + human approval.</p>
-      <div className="grid g3">
+      <p className="sub">Seller onboarding • moderation queues • settlements • disputes. Finance actions need MFA + human approval.</p>
+      <SellerModeration />
+      <div className="grid g3" style={{ marginTop: 16 }}>
         <div className="card"><h3>Pending sellers</h3><div className="price">3 <small>awaiting Tier review</small></div></div>
         <div className="card"><h3>Canonical queue</h3><div className="price">5 <small>dedup candidates</small></div></div>
         <div className="card"><h3>Open disputes</h3><div className="price">2 <small>within SLA</small></div></div>
@@ -56,5 +60,6 @@ export default function AdminPage() {
         <div className="quote-ver accepted"><span className="who">DSP-007:</span> late delivery — resolved, ₦800 delivery refunded</div>
       </div>
     </div>
+    </AdminGate>
   );
 }

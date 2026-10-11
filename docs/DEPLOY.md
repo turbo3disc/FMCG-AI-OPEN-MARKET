@@ -42,3 +42,4 @@ Put Caddy/Nginx in front for HTTPS + your domain.
 - `FRONTEND_URL` — public web URL (for API CORS)
 - `NEXT_PUBLIC_API_URL` — public API URL + `/api` (for web build)
 - `PSP_SECRET_KEY` — Paystack live/secret when taking real money
+- `ADMIN_PASSWORD` — super-admin console password (default `SuperAdmin@2026` — change before going live)

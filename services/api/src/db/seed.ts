@@ -1,5 +1,6 @@
 // Lagos pilot seed: 3 zones, 5 sellers, 20 canonical products, 40 offers.
 // Run via `db:seed`. Money in integer kobo. Coordinates around Lagos.
+import 'dotenv/config';
 import { pool } from './pool.js';
 
 const SELLERS = [

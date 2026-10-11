@@ -6,6 +6,15 @@ import { validateModeration } from './schemas.js';
 interface U { user?: { id: string } }
 
 export async function adminRoutes(app: FastifyInstance): Promise<void> {
+  // Public: super-admin login with the default (or ADMIN_PASSWORD) password.
+  // Returns a bearer token accepted by all requireRole('admin') endpoints.
+  app.post('/login', async (req, reply) => {
+    const { password } = (req.body ?? {}) as { password?: string };
+    if (typeof password !== 'string' || !s.verifyAdminPassword(password)) {
+      return reply.code(401).send({ error: 'wrong admin password', code: 'UNAUTHORIZED' });
+    }
+    return { accessToken: s.adminToken(), defaultPassword: s.isDefaultPassword() };
+  });
   app.get('/users', { preHandler: [requireRole('admin')] }, async (req) =>
     s.listUsers((req.query as { status?: string } | undefined)?.status),
   );

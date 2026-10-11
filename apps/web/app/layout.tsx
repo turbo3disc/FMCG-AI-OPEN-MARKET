@@ -19,9 +19,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="topnav-links">
               <a href="/search">Search</a>
               <a href="/cart">Cart</a>
+              <a href="/messages">Messages</a>
               <a href="/orders">Orders</a>
               <a href="/procurement">Procurement</a>
               <a href="/dashboard">Seller</a>
+              <a href="/join">Join</a>
+              <a href="/login">Login</a>
               <a href="/admin">Admin</a>
             </div>
           </div>

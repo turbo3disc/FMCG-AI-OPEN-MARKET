@@ -41,3 +41,36 @@ export function validateAddress(b: Record<string, unknown>): { label: string; li
   if (typeof city !== 'string' || !city) throw ApiError.badRequest('city required');
   return { label, line1, city, lat: lat as number | undefined, lng: lng as number | undefined };
 }
+
+export interface SellerApplication {
+  contactName: string; phone?: string; email?: string;
+  notifyChannel: 'whatsapp' | 'sms' | 'email';
+  businessName: string; sellerType: 'wholesaler' | 'distributor';
+  addressLine1: string; city: string; lat?: number; lng?: number;
+  password?: string;
+}
+
+export function validateSellerApply(b: Record<string, unknown>): SellerApplication {
+  const { contactName, phone, email, notifyChannel, businessName, sellerType, addressLine1, city, lat, lng, password } = b;
+  if (typeof contactName !== 'string' || !contactName.trim()) throw ApiError.badRequest('contact name required');
+  if (phone !== undefined && (typeof phone !== 'string' || !phoneRe.test(phone))) throw ApiError.badRequest('invalid phone');
+  if (email !== undefined && (typeof email !== 'string' || !emailRe.test(email))) throw ApiError.badRequest('invalid email');
+  if (!phone && !email) throw ApiError.badRequest('phone or email required');
+  const nc = notifyChannel ?? (phone ? 'whatsapp' : 'email');
+  if (!['whatsapp', 'sms', 'email'].includes(nc as string)) throw ApiError.badRequest('invalid notifyChannel');
+  if (nc === 'email' && !email) throw ApiError.badRequest('email required for email notifications');
+  if ((nc === 'whatsapp' || nc === 'sms') && !phone) throw ApiError.badRequest('phone required for WhatsApp/SMS notifications');
+  if (typeof businessName !== 'string' || !businessName.trim()) throw ApiError.badRequest('business name required');
+  const st = sellerType ?? 'wholesaler';
+  if (!['wholesaler', 'distributor'].includes(st as string)) throw ApiError.badRequest('invalid sellerType');
+  if (typeof addressLine1 !== 'string' || !addressLine1.trim()) throw ApiError.badRequest('shop address required');
+  if (typeof city !== 'string' || !city.trim()) throw ApiError.badRequest('city required');
+  if (password !== undefined && (typeof password !== 'string' || password.length < 8)) throw ApiError.badRequest('password must be 8+ chars');
+  return {
+    contactName: (contactName as string).trim(), phone: phone as string | undefined, email: email as string | undefined,
+    notifyChannel: nc as SellerApplication['notifyChannel'], businessName: (businessName as string).trim(),
+    sellerType: st as SellerApplication['sellerType'], addressLine1: (addressLine1 as string).trim(),
+    city: (city as string).trim(), lat: lat as number | undefined, lng: lng as number | undefined,
+    password: password as string | undefined,
+  };
+}

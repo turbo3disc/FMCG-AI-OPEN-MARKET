@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../../common/auth.js';
 import * as s from './service.js';
-import { validateAddress, validateLogin, validateOtp, validateRegister } from './schemas.js';
+import { validateAddress, validateLogin, validateOtp, validateRegister, validateSellerApply } from './schemas.js';
 
 interface Authed {
   user?: { id: string; role: string; sellerId?: string };
@@ -23,6 +23,14 @@ export async function identityRoutes(app: FastifyInstance): Promise<void> {
   app.post('/refresh', async (req) => s.refresh(((req.body ?? {}) as { refreshToken?: string }).refreshToken ?? ''));
 
   app.get('/me', { preHandler: [requireAuth] }, async (req) => s.getMe((req as unknown as Authed).user!.id));
+  app.post('/sellers/apply', async (req, reply) => {
+    const out = await s.applySeller(validateSellerApply((req.body ?? {}) as Record<string, unknown>));
+    return reply.code(201).send(out);
+  });
+  app.get('/sellers/status', async (req) => {
+    const q = (req.query ?? {}) as { phone?: string; email?: string };
+    return s.sellerStatus(q.phone, q.email);
+  });
   app.post('/profile/switch', { preHandler: [requireAuth] }, async (req) =>
     s.switchContext((req as unknown as Authed).user!.id, ((req.body ?? {}) as { context: 'buyer' | 'seller' }).context),
   );

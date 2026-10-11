@@ -1,18 +1,23 @@
 import SearchBar from '../../components/SearchBar';
+import AreaMemory from '../../components/AreaMemory';
+import LiveSellerResults from '../../components/LiveSellerResults';
+import NearbySellers from '../../components/NearbySellers';
 import StockBadge from '../../components/StockBadge';
 import DistanceChip from '../../components/DistanceChip';
+import { LAGOS_AREAS } from '../../lib/geo';
 import { formatNGN } from '../../lib/money';
 import { products, sellers, sellerOf } from '../../lib/demo';
 
 export default function SearchPage({
   searchParams,
 }: {
-  searchParams: { q?: string; cat?: string; radius?: string; unit?: string };
+  searchParams: { q?: string; cat?: string; radius?: string; unit?: string; area?: string };
 }) {
   const q = (searchParams.q ?? '').toLowerCase();
   const cat = searchParams.cat ?? '';
   const radius = Number(searchParams.radius ?? 5);
   const unit = searchParams.unit ?? '';
+  const buyerArea = searchParams.area ?? 'Mile 12 / Ketu';
 
   const matched = products.filter(
     (p) =>
@@ -41,16 +46,20 @@ export default function SearchPage({
           <option value="5">Within 5 km</option>
           <option value="50">City-wide (B2B)</option>
         </select>
+        <AreaMemory param={buyerArea} />
         <select name="unit" defaultValue={unit} aria-label="Unit type">
           <option value="">Any unit</option>
           <option value="piece">Retail (piece)</option>
           <option value="pack">Pack</option>
           <option value="carton">Bulk (carton)</option>
+          <option value="roll">Roll</option>
         </select>
         <button className="btn btn-outline" type="submit">Apply filters</button>
       </form>
 
       <h2 className="section">Results ({rows.length} offers)</h2>
+      <LiveSellerResults q={searchParams.q ?? ''} buyerArea={buyerArea} radiusKm={radius} />
+      <NearbySellers buyerArea={buyerArea} radiusKm={radius} q={searchParams.q ?? ''} />
       <table>
         <thead>
           <tr><th>Seller</th><th>Product</th><th>Distance</th><th>Stock</th><th>Price</th><th>Trust</th></tr>

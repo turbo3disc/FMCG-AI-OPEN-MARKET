@@ -1,6 +1,24 @@
 import { pool } from '../../db/pool.js';
 import { writeAudit } from '../../common/audit.js';
+import { notify, welcomeSeller } from '../../common/notify.js';
 import { ApiError } from '../../common/errors.js';
+
+// Super-admin access. Default password is for first-time setup ONLY — set
+// ADMIN_PASSWORD in production (see docs/DEPLOY.md) and rotate the default.
+export const DEFAULT_ADMIN_PASSWORD = 'SuperAdmin@2026';
+
+export function verifyAdminPassword(password: string): boolean {
+  const expected = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+  return password === expected;
+}
+
+export function adminToken(adminId = 'super-admin'): string {
+  return Buffer.from(`dev:${adminId}:admin:2:${Date.now()}`).toString('base64url');
+}
+
+export function isDefaultPassword(): boolean {
+  return !process.env.ADMIN_PASSWORD;
+}
 
 export const listUsers = async (status?: string) =>
   (await pool.query(status ? `SELECT id, phone, email, status, created_at FROM users WHERE status = $1 LIMIT 200` : `SELECT id, phone, email, status, created_at FROM users LIMIT 200`, status ? [status] : [])).rows;
@@ -17,12 +35,32 @@ export const pendingSellers = async () =>
 
 export async function moderateSeller(sellerId: string, status: 'approved' | 'rejected' | 'suspended', tier: number | undefined, actorId: string) {
   const r = await pool.query(
+    `UPDATE seller_profiles AS s SET verification_status = $2, verification_tier = COALESCE($3, verification_tier) WHERE s.id = $1
+     RETURNING s.*, (SELECT phone FROM users u WHERE u.id = s.user_id) AS phone`,
+    [sellerId, status, tier ?? null],
+  ).catch(async () => pool.query(
+    // Older schema without onboarding columns: fall back to plain update.
     `UPDATE seller_profiles SET verification_status = $2, verification_tier = COALESCE($3, verification_tier) WHERE id = $1 RETURNING *`,
     [sellerId, status, tier ?? null],
-  );
+  ));
   if (!r.rows.length) throw ApiError.notFound('seller not found');
+  const seller = r.rows[0] as { id: string; business_name: string; phone?: string | null; email?: string | null };
   await writeAudit(pool, { actorId, action: `seller.${status}`, entity: 'seller_profiles', entityId: sellerId, meta: { tier } });
-  return r.rows[0];
+  // Welcome onboard (approved) or explain next steps (rejected) — email/WhatsApp/SMS.
+  let notifications: Array<{ channel: string; status: string }> = [];
+  if (status === 'approved') {
+    notifications = await welcomeSeller({ business_name: seller.business_name, phone: seller.phone, email: seller.email });
+  } else if (status === 'rejected') {
+    const to = seller.phone ?? seller.email;
+    if (to && seller.phone) {
+      const n = await notify('whatsapp', seller.phone, 'seller.rejected', { business: seller.business_name });
+      notifications = [{ channel: 'whatsapp', status: n.status }];
+    } else if (to) {
+      const n = await notify('email', to, 'seller.rejected', { business: seller.business_name });
+      notifications = [{ channel: 'email', status: n.status }];
+    }
+  }
+  return { seller, notifications };
 }
 
 // Canonical dedup queue: pending/duplicate canonical rows + offers missing canonical link.

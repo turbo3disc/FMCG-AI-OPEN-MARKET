@@ -7,13 +7,30 @@ export default function HomePage() {
   const featured = products.slice(0, 4);
   return (
     <div>
-      <header className="hero">
-        <h1>Fresh stock, nearby sellers, fair prices</h1>
-        <p>Lagos pilot: B2C instant shopping + B2B bulk procurement. Money in kobo, displayed in ₦.</p>
-        <div style={{ marginTop: 16, maxWidth: 560 }}>
-          <SearchBar />
+      <header className="hero-mix">
+        <div className="hero-grid" aria-hidden="true">
+          <div className="hero-photo"><img src="/hero-market.jpg" alt="" /></div>
+          <div className="hero-photo"><img src="/hero-oils.jpg" alt="" /></div>
+          <div className="hero-photo"><img src="/hero-aisle.jpg" alt="" /></div>
+          <div className="hero-shade" />
         </div>
-        <div className="credit">Photo: Mile 12 Market, Lagos — ShoT88 Studios, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, via Wikimedia Commons</div>
+        <div className="hero-content">
+          <span className="hero-kicker"><span className="dot" /> Lagos pilot — live</span>
+          <h1>Fresh stock, nearby sellers, fair prices</h1>
+          <p>B2C instant shopping + B2B bulk procurement. Money in kobo, displayed in ₦.</p>
+          <div style={{ marginTop: 16, maxWidth: 560 }}>
+            <SearchBar />
+          </div>
+          <div className="hero-cta">
+            <a href="/search" className="btn btn-accent">Shop now</a>
+            <a href="/dashboard" className="btn hero-ghost">Become a seller</a>
+          </div>
+          <div className="hero-stats">
+            <span><b>Verified</b> sellers</span>
+            <span><b>Canonical</b> products</span>
+            <span><b>Protected</b> payments + COD</span>
+          </div>
+        </div>
       </header>
 
       <h2 className="section">Categories</h2>
