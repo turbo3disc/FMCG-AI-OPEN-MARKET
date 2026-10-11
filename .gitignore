@@ -20,3 +20,6 @@ Thumbs.db
 # logs
 *.log
 .neon
+
+# Local Netlify folder
+.netlify
