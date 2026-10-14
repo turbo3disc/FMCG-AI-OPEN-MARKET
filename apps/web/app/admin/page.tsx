@@ -1,11 +1,9 @@
 import { formatNGN } from '../../lib/money';
-import AdminGate from '../../components/AdminGate';
 import SellerModeration from '../../components/SellerModeration';
 import { orders, products, sellers } from '../../lib/demo';
 
 export default function AdminPage() {
   return (
-    <AdminGate>
     <div>
       <h1>Admin console</h1>
       <p className="sub">Seller onboarding • moderation queues • settlements • disputes. Finance actions need MFA + human approval.</p>
@@ -60,6 +58,5 @@ export default function AdminPage() {
         <div className="quote-ver accepted"><span className="who">DSP-007:</span> late delivery — resolved, ₦800 delivery refunded</div>
       </div>
     </div>
-    </AdminGate>
   );
 }
