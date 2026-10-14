@@ -117,6 +117,13 @@ export function setStatus(id: string, status: OfferStatus): SellerProduct[] {
   return next;
 }
 
+/** Bulk command — make every product live (or pause all) for buyers at once. */
+export function setAllStatus(status: OfferStatus): SellerProduct[] {
+  const next = loadInventory().map((p) => ({ ...p, status }));
+  save(next);
+  return next;
+}
+
 export function removeProduct(id: string): SellerProduct[] {
   const next = loadInventory().filter((p) => p.id !== id);
   save(next);

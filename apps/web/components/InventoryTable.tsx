@@ -3,7 +3,7 @@
 
 import { useSyncExternalStore } from 'react';
 import {
-  getInventoryServerSnapshot, getInventorySnapshot, removeProduct, setStatus,
+  getInventoryServerSnapshot, getInventorySnapshot, removeProduct, setAllStatus, setStatus,
   stockLabel, subscribeInventory, type SellerProduct,
 } from '../lib/inventory';
 import {
@@ -40,6 +40,12 @@ export default function InventoryTable() {
         {locked
           ? <span className="btn btn-outline" aria-disabled="true">+ Add product (locked)</span>
           : <a href="/products/new" className="btn btn-primary">+ Add product</a>}
+        {!locked && items.some((p) => p.status !== 'live') && (
+          <button className="btn btn-accent" onClick={() => setAllStatus('live')}>Make ALL live ({items.filter((p) => p.status !== 'live').length})</button>
+        )}
+        {!locked && items.some((p) => p.status === 'live') && (
+          <button className="btn btn-outline" onClick={() => setAllStatus('paused')}>Pause all</button>
+        )}
         <span className="sub" style={{ alignSelf: 'center' }}>
           {items.length} product{items.length === 1 ? '' : 's'} • {live} live for buyers
         </span>
