@@ -23,12 +23,13 @@ export interface OfferInput {
   onHand?: number;
   cartons?: number;
   rolls?: number;
+  images?: string[];
 }
 
 const UNIT_TYPES = ['piece', 'pack', 'carton', 'roll'];
 
 export function validateOffer(b: Record<string, unknown>): OfferInput {
-  const { canonicalProductId, title, brand, size, sku, priceKobo, bulkBreaks, moq, unitType, onHand, cartons, rolls } = b as Record<string, never>;
+  const { canonicalProductId, title, brand, size, sku, priceKobo, bulkBreaks, moq, unitType, onHand, cartons, rolls, images } = b as Record<string, unknown>;
   if (typeof title !== 'string' || !title) throw ApiError.badRequest('title required');
   if (!Number.isInteger(priceKobo) || (priceKobo as number) <= 0) throw ApiError.badRequest('priceKobo must be positive integer kobo');
   if (unitType !== undefined && !(UNIT_TYPES as string[]).includes(unitType as string)) throw ApiError.badRequest('invalid unit_type');
@@ -39,6 +40,14 @@ export function validateOffer(b: Record<string, unknown>): OfferInput {
   if (brand !== undefined && typeof brand !== 'string') throw ApiError.badRequest('brand must be a string');
   if (size !== undefined && typeof size !== 'string') throw ApiError.badRequest('size must be a string');
   if (sku !== undefined && typeof sku !== 'string') throw ApiError.badRequest('sku must be a string');
+  if (images !== undefined) {
+    const imgs = images as unknown[];
+    if (!Array.isArray(imgs)) throw ApiError.badRequest('images must be an array');
+    if (imgs.length > 6) throw ApiError.badRequest('max 6 images per offer');
+    for (const u of imgs) {
+      if (typeof u !== 'string' || !u) throw ApiError.badRequest('image must be a non-empty string');
+    }
+  }
   if (bulkBreaks !== undefined) {
     if (!Array.isArray(bulkBreaks)) throw ApiError.badRequest('bulk_breaks must be an array');
     for (const br of bulkBreaks as Array<{ minQty: number; priceKobo: number }>) {
@@ -47,5 +56,5 @@ export function validateOffer(b: Record<string, unknown>): OfferInput {
       }
     }
   }
-  return { canonicalProductId, title, brand, size, sku, priceKobo, bulkBreaks, moq, unitType, onHand, cartons, rolls } as OfferInput;
+  return { canonicalProductId, title, brand, size, sku, priceKobo, bulkBreaks, moq, unitType, onHand, cartons, rolls, images } as OfferInput;
 }

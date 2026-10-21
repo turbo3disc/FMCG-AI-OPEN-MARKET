@@ -3,7 +3,7 @@ import { writeAudit } from '../../common/audit.js';
 import { ApiError } from '../../common/errors.js';
 import type { OfferInput } from './schemas.js';
 
-const OFFER_COLS = `id, seller_id, canonical_product_id, title, brand, size, sku, price_kobo, bulk_breaks, moq, unit_type, on_hand, cartons, rolls, reserved, (on_hand - reserved) AS available, status, created_at`;
+const OFFER_COLS = `id, seller_id, canonical_product_id, title, brand, size, sku, price_kobo, bulk_breaks, moq, unit_type, on_hand, cartons, rolls, image_urls, reserved, (on_hand - reserved) AS available, status, created_at`;
 
 // --- Canonical products (admin-curated) ---
 export const listCanonical = async (q?: string) =>
@@ -51,11 +51,11 @@ export const listOffers = async (sellerId?: string, status?: string) => {
 
 export async function createOffer(sellerId: string, input: OfferInput) {
   const r = await pool.query(
-    `INSERT INTO seller_offers (seller_id, canonical_product_id, title, brand, size, sku, price_kobo, bulk_breaks, moq, unit_type, on_hand, cartons, rolls, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'draft') RETURNING ${OFFER_COLS}`,
+    `INSERT INTO seller_offers (seller_id, canonical_product_id, title, brand, size, sku, price_kobo, bulk_breaks, moq, unit_type, on_hand, cartons, rolls, image_urls, status)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'draft') RETURNING ${OFFER_COLS}`,
     [sellerId, input.canonicalProductId ?? null, input.title, input.brand ?? null, input.size ?? null, input.sku ?? null,
       input.priceKobo, JSON.stringify(input.bulkBreaks ?? []), input.moq ?? 1, input.unitType ?? 'piece',
-      input.onHand ?? 0, input.cartons ?? 0, input.rolls ?? 0],
+      input.onHand ?? 0, input.cartons ?? 0, input.rolls ?? 0, input.images ?? []],
   );
   await writeAudit(pool, { actorId: sellerId, action: 'offer.create', entity: 'seller_offers', entityId: (r.rows[0] as { id: string }).id });
   return r.rows[0];
@@ -74,11 +74,13 @@ export async function updateOffer(sellerId: string, id: string, input: Partial<O
        bulk_breaks = COALESCE($5,bulk_breaks), moq = COALESCE($6,moq), unit_type = COALESCE($7,unit_type),
        on_hand = COALESCE($8,on_hand), canonical_product_id = COALESCE($9,canonical_product_id),
        brand = COALESCE($10,brand), size = COALESCE($11,size), sku = COALESCE($12,sku),
-       cartons = COALESCE($13,cartons), rolls = COALESCE($14,rolls)
+       cartons = COALESCE($13,cartons), rolls = COALESCE($14,rolls),
+       image_urls = COALESCE($15,image_urls)
      WHERE id = $1 AND seller_id = $2 RETURNING ${OFFER_COLS}`,
     [id, sellerId, input.title ?? null, input.priceKobo ?? null, input.bulkBreaks ? JSON.stringify(input.bulkBreaks) : null,
       input.moq ?? null, input.unitType ?? null, input.onHand ?? null, input.canonicalProductId ?? null,
-      input.brand ?? null, input.size ?? null, input.sku ?? null, input.cartons ?? null, input.rolls ?? null],
+      input.brand ?? null, input.size ?? null, input.sku ?? null, input.cartons ?? null, input.rolls ?? null,
+      input.images ?? null],
   );
   await writeAudit(pool, { actorId: sellerId, action: 'offer.update', entity: 'seller_offers', entityId: id, meta: { priceKobo: input.priceKobo, onHand: input.onHand } });
   return r.rows[0];

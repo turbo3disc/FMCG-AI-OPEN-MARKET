@@ -9,6 +9,7 @@ export interface CartLine {
   unit: string;
   qty: number;
   unitKobo: number;
+  image?: string; // product photo (cover)
 }
 
 const KEY = 'fmcg-cart-v1';

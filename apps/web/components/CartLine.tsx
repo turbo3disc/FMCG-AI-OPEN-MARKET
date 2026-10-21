@@ -14,7 +14,9 @@ export default function CartLine({
 }) {
   return (
     <div className="card" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-      <div className="img" style={{ fontSize: 28, width: 56, height: 56, borderRadius: 8, background: 'linear-gradient(135deg,#DFF0E4,#F3E9CF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{line.emoji}</div>
+      {line.image
+        ? <img src={line.image} alt={line.name} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid var(--line)' }} />
+        : <div className="img" style={{ fontSize: 28, width: 56, height: 56, borderRadius: 8, background: 'linear-gradient(135deg,#DFF0E4,#F3E9CF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{line.emoji}</div>}
       <div style={{ flex: 1 }}>
         <div style={{ fontWeight: 700 }}>{line.name}</div>
         <div className="product meta">

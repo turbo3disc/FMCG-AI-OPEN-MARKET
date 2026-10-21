@@ -23,6 +23,7 @@ export interface SellerProduct {
   moq: number;
   status: OfferStatus;
   createdAt: number;
+  images: string[]; // product photos (cover first) — carton/pack shots
   sellerName?: string;
   sellerArea?: string;
   sellerLat?: string;
@@ -107,7 +108,7 @@ export function newProduct(): SellerProduct {
   return {
     id: uid(), brand: '', name: '', size: '', sku: '', category: 'Groceries',
     sellBy: 'carton', cartons: 0, rolls: 0, packs: 0, pieces: 0,
-    priceKobo: 0, moq: 1, status: 'draft', createdAt: Date.now(),
+    priceKobo: 0, moq: 1, status: 'draft', createdAt: Date.now(), images: [],
   };
 }
 

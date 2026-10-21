@@ -8,6 +8,7 @@ import {
 import {
   canSell, getApplicantsServerSnapshot, getApplicantsSnapshot, myApplicant, subscribeOnboarding,
 } from '../../../../lib/onboarding';
+import ProductImageUploader from '../../../../components/ProductImageUploader';
 import { formatNGN } from '../../../../lib/money';
 
 type SellBy = 'carton' | 'pack' | 'roll' | 'piece';
@@ -128,7 +129,16 @@ export default function NewProductPage() {
       </div>
 
       <div className="card" style={{ marginTop: 12, maxWidth: 680 }}>
-        <div className="kicker">Step 2 · How much stock?</div>
+        <div className="kicker">Step 2 · Photos (carton / pack shots)</div>
+        <p className="sub" style={{ marginTop: 0 }}>
+          Buyers buy with their eyes. Add a clear carton or pack photo — the first one is the
+          cover they see in search and on the product page.
+        </p>
+        <ProductImageUploader images={form.images} onChange={(next) => set('images', next)} />
+      </div>
+
+      <div className="card" style={{ marginTop: 12, maxWidth: 680 }}>
+        <div className="kicker">Step 3 · How much stock?</div>
         <div className="form-row">
           <div>
             <label className="field" htmlFor="sellby">I sell by</label>
@@ -155,7 +165,7 @@ export default function NewProductPage() {
       </div>
 
       <div className="card" style={{ marginTop: 12, maxWidth: 680 }}>
-        <div className="kicker">Step 3 · Price it</div>
+        <div className="kicker">Step 4 · Price it</div>
         <div className="form-row">
           <div>
             <label className="field" htmlFor="price">Price per {form.sellBy} (₦) *</label>

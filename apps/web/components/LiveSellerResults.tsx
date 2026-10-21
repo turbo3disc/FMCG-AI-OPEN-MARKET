@@ -32,8 +32,8 @@ export default function LiveSellerResults({ q, buyerArea, radiusKm }: { q: strin
     .filter((r) => r.km <= radiusKm)
     .sort((a, b) => a.km - b.km);
   if (!live.length) return null;
-  function cartIt(sku: string, name: string, seller: string, unit: string, unitKobo: number) {
-    const { replaced } = addToCart({ productId: sku, name, emoji: '📦', sellerId: `live:${seller}`, unit, qty: 1, unitKobo });
+  function cartIt(sku: string, name: string, seller: string, unit: string, unitKobo: number, image?: string) {
+    const { replaced } = addToCart({ productId: sku, name, emoji: '📦', sellerId: `live:${seller}`, unit, qty: 1, unitKobo, image });
     setAdded(replaced ? `Cart switched to ${seller} (single-seller rule). Opening cart…` : `${name} added to cart. Opening cart…`);
     setTimeout(() => router.push('/cart'), 900);
   }
@@ -49,13 +49,24 @@ export default function LiveSellerResults({ q, buyerArea, radiusKm }: { q: strin
           {live.map(({ p, km }) => (
             <tr key={p.id}>
               <td><b>{p.sellerName ?? 'Verified seller'}</b> • {p.sellerArea ?? ''} <span className="badge b-green">● LIVE</span></td>
-              <td><b>{p.brand} {p.name}</b><div className="sub">{p.size} • SKU {p.sku} • per {p.sellBy} • MOQ {p.moq}</div></td>
+              <td>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  {p.images?.[0]
+                    ? <img className="thumb-sm" src={p.images[0]} alt={p.name} />
+                    : <div className="thumb-sm-ph">📦</div>}
+                  <div>
+                    <a href={`/product/${p.sku}`}><b>{p.brand} {p.name}</b></a>
+                    <div className="sub">{p.size} • SKU {p.sku} • per {p.sellBy} • MOQ {p.moq}</div>
+                  </div>
+                </div>
+              </td>
               <td>{distanceLabel(km)}</td>
               <td>{stockLabel(p)} ({totalUnits(p)} units)</td>
               <td><b>{formatNGN(p.priceKobo)}</b></td>
               <td>
                 <div className="btn-row">
-                  <button className="btn btn-primary" onClick={() => cartIt(p.sku, `${p.brand} ${p.name}`, p.sellerName ?? 'seller', p.sellBy, p.priceKobo)}>Add</button>
+                  <button className="btn btn-primary" onClick={() => cartIt(p.sku, `${p.brand} ${p.name}`, p.sellerName ?? 'seller', p.sellBy, p.priceKobo, p.images?.[0])}>Add</button>
+                  <a className="btn btn-outline" href={`/product/${p.sku}`}>View</a>
                   <a className="btn btn-outline" href={`/messages?to=${encodeURIComponent(`live:${p.sku}`)}`}>Chat</a>
                 </div>
               </td>
